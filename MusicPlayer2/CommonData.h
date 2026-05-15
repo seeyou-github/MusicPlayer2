@@ -384,6 +384,7 @@ struct MediaLibSettingData
     vector<wstring> media_folders;      //媒体库文件夹浏览中显示的文件夹
     vector<wstring> folder_tab_paths;   //自定义文件夹播放列表中每个标签对应的文件夹路径
     vector<wstring> folder_tab_names;   //自定义文件夹播放列表中每个文件夹标签显示名称
+    vector<wstring> my_player_list_tab_order;   //自定义文件夹播放列表的标签显示顺序，包含特殊标签和文件夹路径
     vector<wstring> artist_split_ext;   // 艺术家分割例外，设置名字本身含有分隔符（/;&、）的艺术家（22/7）
     bool hide_only_one_classification;  //媒体库中将只有一项的分类归到其他类中
     bool disable_delete_from_disk;      //禁用从磁盘删除

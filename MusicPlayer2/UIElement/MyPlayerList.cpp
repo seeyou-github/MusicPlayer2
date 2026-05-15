@@ -10,11 +10,16 @@
 #include "MyPlayerListCache.h"
 #include "Player.h"
 #include "CRecentList.h"
+#include "MusicPlayerCmdHelper.h"
 #include <cstdlib>
 
 namespace
 {
     constexpr UINT TAB_MENU_COMMAND_BASE{ 0xE000 };
+    constexpr int NO_TAB_INDEX{ -1 };
+    constexpr int FAVOURITE_TAB_INDEX{ -2 };
+    constexpr COLORREF FAVOURITE_TAB_HEART_COLOR{ RGB(220, 48, 72) };
+    const wchar_t* FAVOURITE_TAB_ORDER_TOKEN{ L"<favourite>" };
 
     int DragDistance(CPoint a, CPoint b)
     {
@@ -33,13 +38,17 @@ void UiElement::MyPlayerList::Draw()
     CalculateRect();
     m_tab_height = ui->DPI(m_tab_height_config + m_tab_margin_top);
     m_element_rect = rect;
-    if (m_selected_tab >= 0 && m_cached_list_font_size != theApp.m_app_setting_data.song_list_font_size)
+    if (IsFolderTab(m_selected_tab) && m_cached_list_font_size != theApp.m_app_setting_data.song_list_font_size)
     {
         if (!LoadFolderSongsFromCache(m_selected_tab))
         {
             m_cached_list_font_size = theApp.m_app_setting_data.song_list_font_size;
             m_cached_item_height = CalculateSongListItemHeight(theApp.m_app_setting_data.song_list_font_size);
         }
+    }
+    else if (IsFavouriteTabSelected() && m_cached_list_font_size != theApp.m_app_setting_data.song_list_font_size)
+    {
+        SetFavouriteSongs();
     }
     CRect list_rect{ GetListRect() };
     SetRect(list_rect);
@@ -61,11 +70,11 @@ bool UiElement::MyPlayerList::LButtonDown(CPoint point)
         }
 
         int index = HitTestTab(point);
-        if (index >= 0)
+        if (index != NO_TAB_INDEX)
         {
             m_tab_pressed = index;
             m_tab_drag_from = index;
-            m_tab_drag_drop_index = index;
+            m_tab_drag_drop_index = GetTabOrderPosition(index);
             m_tab_drag_start_point = point;
             m_tab_dragging = false;
         }
@@ -100,7 +109,7 @@ bool UiElement::MyPlayerList::RButtonUp(CPoint point)
 
 bool UiElement::MyPlayerList::LButtonUp(CPoint point)
 {
-    if (m_tab_drag_from >= 0)
+    if (m_tab_drag_from != NO_TAB_INDEX)
     {
         const int pressed_tab{ m_tab_pressed };
         const int drag_from{ m_tab_drag_from };
@@ -114,7 +123,7 @@ bool UiElement::MyPlayerList::LButtonUp(CPoint point)
             return true;
         }
 
-        if (pressed_tab >= 0 && HitTestTab(point) == pressed_tab)
+        if (pressed_tab != NO_TAB_INDEX && HitTestTab(point) == pressed_tab)
         {
             SelectFolderTab(pressed_tab, true);
             return true;
@@ -150,7 +159,7 @@ bool UiElement::MyPlayerList::DoubleClick(CPoint point)
 
 bool UiElement::MyPlayerList::MouseMove(CPoint point)
 {
-    if (m_tab_drag_from >= 0)
+    if (m_tab_drag_from != NO_TAB_INDEX)
     {
         if (!m_tab_dragging && DragDistance(point, m_tab_drag_start_point) >= ui->DPI(4))
             m_tab_dragging = true;
@@ -205,6 +214,7 @@ void UiElement::MyPlayerList::FromXmlNode(tinyxml2::XMLElement* xml_node)
     CTinyXml2Helper::GetElementAttributeInt(xml_node, "tab_padding", m_tab_padding_config);
     CTinyXml2Helper::GetElementAttributeInt(xml_node, "tab_selected_font_size", m_tab_selected_font_size);
     CTinyXml2Helper::GetElementAttributeInt(xml_node, "tab_unselected_font_size", m_tab_unselected_font_size);
+    CTinyXml2Helper::GetElementAttributeBool(xml_node, "show_favourite_tab", m_show_favourite_tab);
     CCommon::SetNumRange(m_tab_height_config, 16, 96);
     CCommon::SetNumRange(m_tab_margin_top, 0, 96);
     CCommon::SetNumRange(m_tab_margin_left, 0, 256);
@@ -242,6 +252,60 @@ std::wstring UiElement::MyPlayerList::GetItemText(int row, int col)
     return AbstractTracksList::GetItemText(row, col);
 }
 
+bool UiElement::MyPlayerList::IsHighlightRow(int row)
+{
+    if (IsFavouriteTabSelected() && CRecentList::Instance().IsPlayingSpecPlaylist(CRecentList::PT_FAVOURITE))
+        return CPlayer::GetInstance().GetIndex() == row;
+    return AbstractTracksList::IsHighlightRow(row);
+}
+
+CMenu* UiElement::MyPlayerList::GetContextMenu(bool item_selected)
+{
+    if (IsFavouriteTabSelected())
+        return nullptr;
+    return AbstractTracksList::GetContextMenu(item_selected);
+}
+
+void UiElement::MyPlayerList::OnDoubleClicked()
+{
+    int item_selected = GetItemSelected();
+    if (IsFavouriteTabSelected())
+    {
+        if (item_selected >= 0 && item_selected < CUiMyFavouriteItemMgr::Instance().GetSongCount())
+        {
+            CMusicPlayerCmdHelper helper;
+            SongInfo song_info{ CUiMyFavouriteItemMgr::Instance().GetSongInfo(item_selected) };
+            helper.OnPlayMyFavourite(song_info);
+        }
+        return;
+    }
+    TrackList::OnDoubleClicked();
+}
+
+void UiElement::MyPlayerList::OnHoverButtonClicked(int btn_index, int row)
+{
+    TrackList::OnHoverButtonClicked(btn_index, row);
+    if (IsFavouriteTabSelected())
+    {
+        CUiMyFavouriteItemMgr::Instance().UpdateMyFavourite();
+        SetFavouriteSongs();
+    }
+}
+
+std::wstring UiElement::MyPlayerList::GetEmptyString()
+{
+    if (IsFavouriteTabSelected())
+    {
+        if (CUiMyFavouriteItemMgr::Instance().IsLoading())
+            return theApp.m_str_table.LoadText(L"UI_MEDIALIB_LIST_LOADING_INFO");
+        else if (!CUiMyFavouriteItemMgr::Instance().IsInited())
+            return theApp.m_str_table.LoadText(L"UI_MEDIALIB_LIST_UNINITED_INFO");
+        else
+            return theApp.m_str_table.LoadText(L"UI_MEDIALIB_LIST_EMPTY_INFO");
+    }
+    return TrackList::GetEmptyString();
+}
+
 void UiElement::MyPlayerList::DrawScrollArea()
 {
     CRect tab_source_rect{ m_element_rect };
@@ -269,12 +333,12 @@ void UiElement::MyPlayerList::DrawScrollArea()
     m_tab_menu_button_rect.SetRectEmpty();
     m_tab_add_button_rect.SetRectEmpty();
     m_tab_visible_rect = tab_content_rect;
+    BuildTabOrder();
 
     const int tab_y = tab_bar_rect.top + ui->DPI(m_tab_margin_top);
 
-    const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
     const int menu_button_size = ui->DPI((std::max)(20, m_tab_height_config));
-    if (folders.empty())
+    if (m_tab_order.empty())
     {
         m_tab_add_button_rect = tab_content_rect;
         m_tab_add_button_rect.left += ui->DPI(4);
@@ -297,17 +361,20 @@ void UiElement::MyPlayerList::DrawScrollArea()
     }
 
     std::vector<int> tab_widths;
-    tab_widths.reserve(folders.size());
+    tab_widths.reserve(m_tab_order.size());
     m_tab_total_width = 0;
-    for (int i{}; i < static_cast<int>(folders.size()); ++i)
+    for (int i{}; i < static_cast<int>(m_tab_order.size()); ++i)
     {
-        std::wstring name = GetFolderTabName(i);
-        UiFontGuard font_guard(ui, GetTabFontSize(i == m_selected_tab));
+        int tab_index = m_tab_order[i];
+        std::wstring name = GetTabName(tab_index);
+        UiFontGuard font_guard(ui, GetTabFontSize(tab_index == m_selected_tab));
         int tab_width = ui->GetDrawer().GetTextExtent(name.c_str()).cx + tab_padding * 2;
+        if (IsFavouriteTab(tab_index))
+            tab_width += ui->DPI(18);
         tab_width = (std::max)(tab_width, min_tab_width);
         tab_widths.push_back(tab_width);
         m_tab_total_width += tab_width;
-        if (i + 1 < static_cast<int>(folders.size()))
+        if (i + 1 < static_cast<int>(m_tab_order.size()))
             m_tab_total_width += tab_gap;
     }
 
@@ -323,12 +390,13 @@ void UiElement::MyPlayerList::DrawScrollArea()
 
     const int max_scroll_offset = (std::max)(0, m_tab_total_width - (m_tab_visible_rect.Width() - ui->DPI(4)));
     CCommon::SetNumRange(m_tab_scroll_offset, 0, max_scroll_offset);
-    if (m_selected_tab >= 0 && m_selected_tab < static_cast<int>(tab_widths.size()))
+    const int selected_order_pos = GetTabOrderPosition(m_selected_tab);
+    if (selected_order_pos >= 0 && selected_order_pos < static_cast<int>(tab_widths.size()))
     {
         int selected_left = m_tab_visible_rect.left + ui->DPI(4) - m_tab_scroll_offset;
-        for (int i{}; i < m_selected_tab; ++i)
+        for (int i{}; i < selected_order_pos; ++i)
             selected_left += tab_widths[i] + tab_gap;
-        int selected_right = selected_left + tab_widths[m_selected_tab];
+        int selected_right = selected_left + tab_widths[selected_order_pos];
         if (selected_left < m_tab_visible_rect.left)
             m_tab_scroll_offset -= m_tab_visible_rect.left - selected_left;
         else if (selected_right > m_tab_visible_rect.right)
@@ -337,19 +405,20 @@ void UiElement::MyPlayerList::DrawScrollArea()
     }
 
     int tab_x = m_tab_visible_rect.left + ui->DPI(4) - m_tab_scroll_offset;
-    for (int i{}; i < static_cast<int>(folders.size()); ++i)
+    for (int i{}; i < static_cast<int>(m_tab_order.size()); ++i)
     {
-        std::wstring name = GetFolderTabName(i);
+        int tab_index = m_tab_order[i];
+        std::wstring name = GetTabName(tab_index);
         int tab_width = i < static_cast<int>(tab_widths.size()) ? tab_widths[i] : min_tab_width;
         CRect tab_rect{ tab_x, tab_y, tab_x + tab_width, tab_y + ui->DPI(m_tab_height_config) };
         m_tab_rects.push_back(tab_rect);
-        m_tab_indices.push_back(i);
+        m_tab_indices.push_back(tab_index);
 
         CRect draw_rect{ tab_rect };
         draw_rect &= m_tab_visible_rect;
         if (!draw_rect.IsRectEmpty())
         {
-            COLORREF back_color{ GetTabBackColor(i == m_selected_tab, i == m_hover_tab || (m_tab_dragging && i == m_tab_drag_from)) };
+            COLORREF back_color{ GetTabBackColor(tab_index == m_selected_tab, tab_index == m_hover_tab || (m_tab_dragging && tab_index == m_tab_drag_from)) };
 
             BYTE tab_alpha = static_cast<BYTE>(ui->IsDrawBackgroundAlpha() ? ALPHA_CHG(theApp.m_app_setting_data.background_transparency) * 2 / 3 : 255);
             if (theApp.m_app_setting_data.button_round_corners)
@@ -360,11 +429,19 @@ void UiElement::MyPlayerList::DrawScrollArea()
             CRect text_rect{ tab_rect };
             text_rect.DeflateRect(tab_padding, 0);
             DrawAreaGuard guard(&ui->GetDrawer(), m_tab_visible_rect & text_rect);
-            UiFontGuard font_guard(ui, GetTabFontSize(i == m_selected_tab));
-            ui->GetDrawer().DrawWindowText(text_rect, name.c_str(), GetTabTextColor(i == m_selected_tab), Alignment::LEFT, true);
+            UiFontGuard font_guard(ui, GetTabFontSize(tab_index == m_selected_tab));
+            if (IsFavouriteTab(tab_index))
+            {
+                const int heart_width = ui->DPI(14);
+                CRect heart_rect{ text_rect };
+                heart_rect.right = heart_rect.left + heart_width;
+                ui->GetDrawer().DrawWindowText(heart_rect, L"\u2665", FAVOURITE_TAB_HEART_COLOR, Alignment::LEFT, true);
+                text_rect.left += heart_width + ui->DPI(4);
+            }
+            ui->GetDrawer().DrawWindowText(text_rect, name.c_str(), GetTabTextColor(tab_index == m_selected_tab), Alignment::LEFT, true);
         }
         if (tabs_overflow && (tab_rect.left < m_tab_visible_rect.left || tab_rect.right > m_tab_visible_rect.right))
-            m_hidden_tab_indices.push_back(i);
+            m_hidden_tab_indices.push_back(tab_index);
         tab_x += tab_width + tab_gap;
     }
 
@@ -384,7 +461,7 @@ void UiElement::MyPlayerList::DrawScrollArea()
         int marker_x = m_tab_visible_rect.right;
         for (int i{}; i < static_cast<int>(m_tab_rects.size()); ++i)
         {
-            if (i < static_cast<int>(m_tab_indices.size()) && m_tab_indices[i] == m_tab_drag_drop_index)
+            if (i == m_tab_drag_drop_index)
             {
                 marker_x = m_tab_rects[i].left;
                 break;
@@ -462,18 +539,117 @@ std::wstring UiElement::MyPlayerList::GetFolderTabName(int index) const
     return name;
 }
 
-void UiElement::MyPlayerList::InitTabsWithoutLoading()
+std::wstring UiElement::MyPlayerList::GetTabName(int index) const
+{
+    if (IsFavouriteTab(index))
+        return GetFavouriteTabName();
+    return GetFolderTabName(index);
+}
+
+std::wstring UiElement::MyPlayerList::GetFavouriteTabName() const
+{
+    return theApp.m_str_table.LoadText(L"TXT_MY_FAVOURITE_SHORT");
+}
+
+bool UiElement::MyPlayerList::IsFavouriteTab(int index) const
+{
+    return index == FAVOURITE_TAB_INDEX;
+}
+
+bool UiElement::MyPlayerList::IsFolderTab(int index) const
+{
+    const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
+    return index >= 0 && index < static_cast<int>(folders.size());
+}
+
+bool UiElement::MyPlayerList::IsFavouriteTabSelected() const
+{
+    return IsFavouriteTab(m_selected_tab);
+}
+
+void UiElement::MyPlayerList::BuildTabOrder()
 {
     NormalizeFolderTabs();
-    m_selected_tab = theApp.m_media_lib_setting_data.folder_tab_paths.empty() ? -1 : 0;
-    if (m_selected_tab >= 0 && theApp.m_play_setting_data.remember_last_position)
+    const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
+    const auto& saved_order = theApp.m_media_lib_setting_data.my_player_list_tab_order;
+
+    m_tab_order.clear();
+    std::vector<bool> used_folders(folders.size());
+    bool favourite_added{ false };
+
+    for (const auto& item : saved_order)
+    {
+        if (item == FAVOURITE_TAB_ORDER_TOKEN)
+        {
+            if (m_show_favourite_tab && !favourite_added)
+            {
+                m_tab_order.push_back(FAVOURITE_TAB_INDEX);
+                favourite_added = true;
+            }
+            continue;
+        }
+
+        std::wstring folder_path{ NormalizeFolderPath(item) };
+        for (int i{}; i < static_cast<int>(folders.size()); ++i)
+        {
+            if (!used_folders[i] && CCommon::StringCompareNoCase(NormalizeFolderPath(folders[i]), folder_path))
+            {
+                m_tab_order.push_back(i);
+                used_folders[i] = true;
+                break;
+            }
+        }
+    }
+
+    if (m_show_favourite_tab && !favourite_added)
+        m_tab_order.insert(m_tab_order.begin(), FAVOURITE_TAB_INDEX);
+
+    for (int i{}; i < static_cast<int>(folders.size()); ++i)
+    {
+        if (!used_folders[i])
+            m_tab_order.push_back(i);
+    }
+}
+
+void UiElement::MyPlayerList::SaveTabOrder()
+{
+    auto& saved_order = theApp.m_media_lib_setting_data.my_player_list_tab_order;
+    const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
+    saved_order.clear();
+    for (int tab_index : m_tab_order)
+    {
+        if (IsFavouriteTab(tab_index))
+        {
+            if (m_show_favourite_tab)
+                saved_order.push_back(FAVOURITE_TAB_ORDER_TOKEN);
+        }
+        else if (tab_index >= 0 && tab_index < static_cast<int>(folders.size()))
+        {
+            saved_order.push_back(NormalizeFolderPath(folders[tab_index]));
+        }
+    }
+}
+
+int UiElement::MyPlayerList::GetTabOrderPosition(int index) const
+{
+    auto iter = std::find(m_tab_order.begin(), m_tab_order.end(), index);
+    if (iter == m_tab_order.end())
+        return -1;
+    return static_cast<int>(iter - m_tab_order.begin());
+}
+
+void UiElement::MyPlayerList::InitTabsWithoutLoading()
+{
+    BuildTabOrder();
+    m_selected_tab = m_tab_order.empty() ? NO_TAB_INDEX : m_tab_order.front();
+    if (theApp.m_play_setting_data.remember_last_position)
     {
         int playing_tab = GetPlayingSongTabIndex();
-        if (playing_tab >= 0)
+        if (playing_tab != NO_TAB_INDEX)
             m_selected_tab = playing_tab;
     }
-    if (m_selected_tab >= 0)
-        SetFolderSongs(m_selected_tab);
+    if (m_selected_tab != NO_TAB_INDEX)
+        SelectFolderTab(m_selected_tab, true);
     else
     {
         m_cached_tracks.clear();
@@ -485,11 +661,11 @@ void UiElement::MyPlayerList::InitTabsWithoutLoading()
 
 void UiElement::MyPlayerList::RefreshTabs(bool keep_selection)
 {
-    NormalizeFolderTabs();
-    const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
-    if (folders.empty())
+    int old_selected_tab{ m_selected_tab };
+    BuildTabOrder();
+    if (m_tab_order.empty())
     {
-        m_selected_tab = -1;
+        m_selected_tab = NO_TAB_INDEX;
         m_cached_tracks.clear();
         m_cached_item_height = 0;
         m_cached_list_font_size = 0;
@@ -497,27 +673,34 @@ void UiElement::MyPlayerList::RefreshTabs(bool keep_selection)
         return;
     }
 
-    if (!keep_selection || m_selected_tab < 0 || m_selected_tab >= static_cast<int>(folders.size()))
-        m_selected_tab = 0;
+    if (!keep_selection || GetTabOrderPosition(old_selected_tab) < 0)
+        m_selected_tab = m_tab_order.front();
+    else
+        m_selected_tab = old_selected_tab;
     SelectFolderTab(m_selected_tab, true);
 }
 
 void UiElement::MyPlayerList::SelectFolderTab(int index, bool refresh_list)
 {
-    const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
-    if (index < 0 || index >= static_cast<int>(folders.size()))
-    {
+    if (GetTabOrderPosition(index) < 0)
         return;
-    }
 
     m_selected_tab = index;
     EnsureTabVisible(index);
     if (refresh_list)
-        SetFolderSongs(index);
+    {
+        if (IsFavouriteTab(index))
+            SetFavouriteSongs();
+        else
+            SetFolderSongs(index);
+    }
 }
 
 int UiElement::MyPlayerList::GetPlayingSongTabIndex() const
 {
+    if (m_show_favourite_tab && CRecentList::Instance().IsPlayingSpecPlaylist(CRecentList::PT_FAVOURITE))
+        return FAVOURITE_TAB_INDEX;
+
     std::wstring song_path;
     const SongInfo& current_song = CPlayer::GetInstance().GetSafeCurrentSongInfo();
     if (!current_song.IsEmpty() && !current_song.file_path.empty())
@@ -531,12 +714,12 @@ int UiElement::MyPlayerList::GetPlayingSongTabIndex() const
     }
 
     if (song_path.empty())
-        return -1;
+        return NO_TAB_INDEX;
 
     CCommon::StringNormalize(song_path);
     std::replace(song_path.begin(), song_path.end(), L'/', L'\\');
     const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
-    int best_index{ -1 };
+    int best_index{ NO_TAB_INDEX };
     size_t best_length{};
     for (int i{}; i < static_cast<int>(folders.size()); ++i)
     {
@@ -570,7 +753,7 @@ bool UiElement::MyPlayerList::HitTestTabMenuButton(CPoint point) const
 
 bool UiElement::MyPlayerList::HitTestTabAddButton(CPoint point) const
 {
-    return theApp.m_media_lib_setting_data.folder_tab_paths.empty() && !m_tab_add_button_rect.IsRectEmpty() && m_tab_add_button_rect.PtInRect(point);
+    return m_tab_order.empty() && !m_tab_add_button_rect.IsRectEmpty() && m_tab_add_button_rect.PtInRect(point);
 }
 
 void UiElement::MyPlayerList::ShowHiddenTabsMenu()
@@ -583,7 +766,7 @@ void UiElement::MyPlayerList::ShowHiddenTabsMenu()
     for (size_t i{}; i < m_hidden_tab_indices.size(); ++i)
     {
         int tab_index = m_hidden_tab_indices[i];
-        menu.AppendMenuW(MF_STRING, TAB_MENU_COMMAND_BASE + static_cast<UINT>(i), GetFolderTabName(tab_index).c_str());
+        menu.AppendMenuW(MF_STRING, TAB_MENU_COMMAND_BASE + static_cast<UINT>(i), GetTabName(tab_index).c_str());
     }
 
     CPoint point{ m_tab_menu_button_rect.left, m_tab_menu_button_rect.bottom };
@@ -599,62 +782,44 @@ void UiElement::MyPlayerList::ShowHiddenTabsMenu()
 
 int UiElement::MyPlayerList::GetTabDropIndex(CPoint point) const
 {
-    const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
-    if (folders.empty())
+    if (m_tab_order.empty())
         return -1;
 
     for (int i{}; i < static_cast<int>(m_tab_rects.size()); ++i)
     {
-        if (i >= static_cast<int>(m_tab_indices.size()))
-            continue;
         if (point.x < m_tab_rects[i].CenterPoint().x)
-            return m_tab_indices[i];
+            return i;
     }
-    return static_cast<int>(folders.size());
+    return static_cast<int>(m_tab_order.size());
 }
 
 void UiElement::MyPlayerList::ReorderFolderTab(int from, int insert_before)
 {
-    NormalizeFolderTabs();
-    auto& paths = theApp.m_media_lib_setting_data.folder_tab_paths;
-    auto& names = theApp.m_media_lib_setting_data.folder_tab_names;
-    const int count = static_cast<int>(paths.size());
-    if (from < 0 || from >= count)
+    BuildTabOrder();
+    const int from_pos = GetTabOrderPosition(from);
+    if (from_pos < 0)
         return;
 
+    const int count = static_cast<int>(m_tab_order.size());
     CCommon::SetNumRange(insert_before, 0, count);
-    if (insert_before == from || insert_before == from + 1)
+    if (insert_before == from_pos || insert_before == from_pos + 1)
         return;
 
-    std::wstring selected_path;
-    if (m_selected_tab >= 0 && m_selected_tab < count)
-        selected_path = paths[m_selected_tab];
-
-    std::wstring path{ paths[from] };
-    std::wstring name{ from < static_cast<int>(names.size()) ? names[from] : std::wstring() };
-    paths.erase(paths.begin() + from);
-    if (from < static_cast<int>(names.size()))
-        names.erase(names.begin() + from);
-
-    if (insert_before > from)
+    int selected_tab{ m_selected_tab };
+    int tab_index{ m_tab_order[from_pos] };
+    m_tab_order.erase(m_tab_order.begin() + from_pos);
+    if (insert_before > from_pos)
         --insert_before;
-    paths.insert(paths.begin() + insert_before, path);
-    names.insert(names.begin() + insert_before, name);
-
-    m_selected_tab = insert_before;
-    if (!selected_path.empty())
-    {
-        auto selected_iter = std::find(paths.begin(), paths.end(), selected_path);
-        if (selected_iter != paths.end())
-            m_selected_tab = static_cast<int>(selected_iter - paths.begin());
-    }
+    m_tab_order.insert(m_tab_order.begin() + insert_before, tab_index);
+    m_selected_tab = selected_tab;
+    SaveTabOrder();
     SaveFolderTabSettings();
     EnsureTabVisible(m_selected_tab);
 }
 
 void UiElement::MyPlayerList::EnsureTabVisible(int index)
 {
-    if (index < 0 || m_tab_visible_rect.IsRectEmpty())
+    if (index == NO_TAB_INDEX || m_tab_visible_rect.IsRectEmpty())
         return;
 
     for (int i{}; i < static_cast<int>(m_tab_rects.size()); ++i)
@@ -742,13 +907,13 @@ bool UiElement::MyPlayerList::ParseTabColor(tinyxml2::XMLElement* xml_node, cons
 
 void UiElement::MyPlayerList::ShowTabContextMenu(int index)
 {
-    if (index >= 0)
+    if (index != NO_TAB_INDEX)
         SelectFolderTab(index, false);
 
     CMenu menu;
     menu.CreatePopupMenu();
     menu.AppendMenuW(MF_STRING, ID_FILE_OPEN_FOLDER, theApp.m_str_table.LoadText(L"TXT_FOLDER_TAB_ADD").c_str());
-    if (index >= 0)
+    if (IsFolderTab(index))
     {
         menu.AppendMenuW(MF_STRING, ID_RENAME, theApp.m_str_table.LoadText(L"TXT_FOLDER_TAB_RENAME").c_str());
         menu.AppendMenuW(MF_STRING, ID_RELOAD_PLAYLIST, theApp.m_str_table.LoadText(L"TXT_FOLDER_TAB_REFRESH").c_str());
@@ -761,11 +926,11 @@ void UiElement::MyPlayerList::ShowTabContextMenu(int index)
     UINT command = menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY, point.x, point.y, theApp.m_pMainWnd);
     if (command == ID_FILE_OPEN_FOLDER)
         AddFolder();
-    else if (command == ID_RENAME)
+    else if (command == ID_RENAME && IsFolderTab(index))
         RenameFolder(index);
-    else if (command == ID_DELETE_PATH)
+    else if (command == ID_DELETE_PATH && IsFolderTab(index))
         DeleteFolder(index);
-    else if (command == ID_RELOAD_PLAYLIST)
+    else if (command == ID_RELOAD_PLAYLIST && IsFolderTab(index))
         RefreshFolder(index);
 }
 
@@ -806,6 +971,10 @@ void UiElement::MyPlayerList::AddFolder()
         m_selected_tab = static_cast<int>(iter - tab_paths.begin());
     }
 
+    BuildTabOrder();
+    if (GetTabOrderPosition(m_selected_tab) < 0)
+        m_tab_order.push_back(m_selected_tab);
+    SaveTabOrder();
     SaveFolderTabSettings();
     SetFolderSongs(m_selected_tab, true);
 }
@@ -850,11 +1019,19 @@ void UiElement::MyPlayerList::DeleteFolder(int index)
     if (index < static_cast<int>(names.size()))
         names.erase(names.begin() + index);
     CMyPlayerListCache::DeleteTab(folder_path);
+    if (m_selected_tab == index)
+        m_selected_tab = NO_TAB_INDEX;
+    else if (m_selected_tab > index)
+        --m_selected_tab;
+    BuildTabOrder();
+    if (m_selected_tab == NO_TAB_INDEX && !m_tab_order.empty())
+        m_selected_tab = m_tab_order.front();
+    SaveTabOrder();
     SaveFolderTabSettings();
 
-    if (paths.empty())
+    if (m_tab_order.empty())
     {
-        m_selected_tab = -1;
+        m_selected_tab = NO_TAB_INDEX;
         m_cached_tracks.clear();
         m_cached_item_height = 0;
         m_cached_list_font_size = 0;
@@ -862,19 +1039,19 @@ void UiElement::MyPlayerList::DeleteFolder(int index)
     }
     else
     {
-        if (m_selected_tab >= static_cast<int>(paths.size()))
-            m_selected_tab = static_cast<int>(paths.size()) - 1;
         RefreshTabs(true);
     }
 }
 
 void UiElement::MyPlayerList::RefreshFolder(int index)
 {
-    SetFolderSongs(index, true);
+    if (IsFolderTab(index))
+        SetFolderSongs(index, true);
 }
 
 void UiElement::MyPlayerList::SaveFolderTabSettings()
 {
+    SaveTabOrder();
     CMusicPlayerDlg* pMainWnd = CMusicPlayerDlg::GetInstance();
     if (pMainWnd != nullptr)
         pMainWnd->SaveConfigNow();
@@ -927,6 +1104,42 @@ void UiElement::MyPlayerList::SetFolderSongs(int index, bool force_refresh)
     CMyPlayerListCache::TabInfo tab = CMyPlayerListCache::BuildTab(folders[index], GetFolderTabName(index), m_list_item.sort_mode, song_list);
     CMyPlayerListCache::SaveTab(tab);
     ApplyCacheTab(tab);
+    scroll_offset = 0;
+    LocatePlayingSongInCurrentTab();
+}
+
+void UiElement::MyPlayerList::SetFavouriteSongs()
+{
+    m_list_item = CRecentList::Instance().GetSpecPlaylist(CRecentList::PT_FAVOURITE);
+    m_selected_tab = FAVOURITE_TAB_INDEX;
+    SelectNone();
+
+    std::vector<SongInfo> song_list;
+    CUiMyFavouriteItemMgr::Instance().GetSongList(song_list);
+
+    m_cached_tracks.clear();
+    m_cached_tracks.reserve(song_list.size());
+    std::vector<CUISongListMgr::UTrackInfo> track_list;
+    track_list.reserve(song_list.size());
+    for (const auto& song_info : song_list)
+    {
+        CMyPlayerListCache::TrackInfo cached_track;
+        cached_track.file_path = song_info.file_path;
+        cached_track.display_name = CFilePathHelper(song_info.file_path).GetFileNameWithoutExtension();
+        cached_track.duration_text = song_info.length().toString();
+        m_cached_tracks.push_back(cached_track);
+
+        CUISongListMgr::UTrackInfo track;
+        track.song_key = SongKey(song_info);
+        track.name = cached_track.display_name;
+        track.length = song_info.length();
+        track.is_favourite = true;
+        track_list.push_back(track);
+    }
+
+    m_cached_item_height = CalculateSongListItemHeight(theApp.m_app_setting_data.song_list_font_size);
+    m_cached_list_font_size = theApp.m_app_setting_data.song_list_font_size;
+    m_ui_song_list->UpdateCached(track_list);
     scroll_offset = 0;
     LocatePlayingSongInCurrentTab();
 }

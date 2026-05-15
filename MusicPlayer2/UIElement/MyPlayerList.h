@@ -18,6 +18,11 @@ namespace UiElement
         virtual int GetScrollAreaHeight() override;
         virtual void DrawScrollArea() override;
         virtual std::wstring GetItemText(int row, int col) override;
+        virtual bool IsHighlightRow(int row) override;
+        virtual CMenu* GetContextMenu(bool item_selected) override;
+        virtual void OnDoubleClicked() override;
+        virtual void OnHoverButtonClicked(int btn_index, int row) override;
+        virtual std::wstring GetEmptyString() override;
         virtual int GetSongListCachedItemHeight() const override;
         virtual void FromXmlNode(tinyxml2::XMLElement* xml_node) override;
 
@@ -31,6 +36,14 @@ namespace UiElement
         void NormalizeFolderTabs();
         std::wstring NormalizeFolderPath(const std::wstring& folder_path) const;
         std::wstring GetFolderTabName(int index) const;
+        std::wstring GetTabName(int index) const;
+        std::wstring GetFavouriteTabName() const;
+        bool IsFavouriteTab(int index) const;
+        bool IsFolderTab(int index) const;
+        bool IsFavouriteTabSelected() const;
+        void BuildTabOrder();
+        void SaveTabOrder();
+        int GetTabOrderPosition(int index) const;
         void InitTabsWithoutLoading();
         void RefreshTabs(bool keep_selection);
         void SelectFolderTab(int index, bool refresh_list);
@@ -57,6 +70,7 @@ namespace UiElement
         void SaveFolderTabSettings();
         ListItem GetFolderListItem(int index) const;
         void SetFolderSongs(int index, bool force_refresh = false);
+        void SetFavouriteSongs();
         bool LocatePlayingSongInCurrentTab();
         bool LoadFolderSongsFromCache(int index);
         void ApplyCacheTab(const CMyPlayerListCache::TabInfo& tab);
@@ -65,6 +79,7 @@ namespace UiElement
     private:
         CRect m_element_rect;
         std::vector<CRect> m_tab_rects;
+        std::vector<int> m_tab_order;
         std::vector<int> m_tab_indices;
         std::vector<int> m_hidden_tab_indices;
         CRect m_tab_visible_rect;
@@ -96,5 +111,6 @@ namespace UiElement
         TabColor m_tab_unselected_background_color;
         TabColor m_tab_selected_text_color;
         TabColor m_tab_unselected_text_color;
+        bool m_show_favourite_tab{ true };
     };
 }

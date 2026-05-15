@@ -545,6 +545,7 @@ void CMusicPlayerDlg::SaveConfig()
     ini.WriteStringList(L"media_lib", L"media_folders", theApp.m_media_lib_setting_data.media_folders);
     ini.WriteStringList(L"media_lib", L"folder_tab_paths", theApp.m_media_lib_setting_data.folder_tab_paths);
     ini.WriteStringList(L"media_lib", L"folder_tab_names", theApp.m_media_lib_setting_data.folder_tab_names);
+    ini.WriteStringList(L"media_lib", L"my_player_list_tab_order", theApp.m_media_lib_setting_data.my_player_list_tab_order);
     ini.WriteStringList(L"media_lib", L"artist_split_ext", theApp.m_media_lib_setting_data.artist_split_ext);
     ini.WriteBool(L"media_lib", L"hide_only_one_classification", theApp.m_media_lib_setting_data.hide_only_one_classification);
     ini.WriteBool(L"media_lib", L"disable_delete_from_disk", theApp.m_media_lib_setting_data.disable_delete_from_disk);
@@ -790,6 +791,7 @@ void CMusicPlayerDlg::LoadConfig()
     ini.GetStringList(L"media_lib", L"media_folders", theApp.m_media_lib_setting_data.media_folders, vector<wstring>{});
     ini.GetStringList(L"media_lib", L"folder_tab_paths", theApp.m_media_lib_setting_data.folder_tab_paths, vector<wstring>{});
     ini.GetStringList(L"media_lib", L"folder_tab_names", theApp.m_media_lib_setting_data.folder_tab_names, vector<wstring>{});
+    ini.GetStringList(L"media_lib", L"my_player_list_tab_order", theApp.m_media_lib_setting_data.my_player_list_tab_order, vector<wstring>{});
     if (theApp.m_media_lib_setting_data.folder_tab_paths.empty() && !theApp.m_media_lib_setting_data.folder_tab_names.empty())
     {
         auto old_names = theApp.m_media_lib_setting_data.folder_tab_names;

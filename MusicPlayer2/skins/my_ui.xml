@@ -58,7 +58,7 @@
             </verticalLayout>-->
 			
             <verticalLayout margin="0">
-              <myPlayerList item_height="40" tab_margin_top="0" tab_margin_left="0" tab_margin_right="0" tab_height="36" tab_padding="18"
+              <myPlayerList item_height="40" show_favourite_tab="true" tab_margin_top="0" tab_margin_left="0" tab_margin_right="0" tab_height="36" tab_padding="18"
                             tab_background_color="#2D3037" tab_selected_background_color="#20222A" tab_unselected_background_color="#2D3037"
                             tab_selected_text_color="#eeeeee" tab_unselected_text_color="#aaaaaa" tab_selected_font_size="14" tab_unselected_font_size="14" scrollbar_width="14" scrollbar_narrow_width="8" scrollbar_min_handle_length="24"/>
             </verticalLayout>
