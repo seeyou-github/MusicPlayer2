@@ -1,0 +1,10 @@
+Scintilla 是一个免费开源的源代码编辑控件
+
+提供语法高亮、代码折叠、自动补全等高级文本编辑功能。
+
+在 MusicPlayer2 中的用途：作为歌词编辑器的内核。加载 SciLexer.dll，通过 ScintillaEditView 
+包装类集成，
+
+并包含一个自定义的 LexLyric.cxx 词法分析器专门用于 .lrc 歌词文件的语法高亮（时间标签、翻译文本等）。
+
+官网：https://www.scintilla.org

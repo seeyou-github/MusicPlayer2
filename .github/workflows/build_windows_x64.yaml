@@ -1,0 +1,56 @@
+name: build_windows_x64
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build-x64:
+    runs-on: windows-latest
+    steps:
+      - name: Check Out
+        uses: actions/checkout@v4
+
+      - name: Setup msbuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build TagLib
+        run: |
+          cmake -S ./lib_source/taglib-2.3 -B ./lib_source/taglib-build/x64 -A x64 -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/lib_source/taglib-build/x64/install" -DBUILD_SHARED_LIBS=ON -DBUILD_BINDINGS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DWITH_ZLIB=OFF
+          cmake --build ./lib_source/taglib-build/x64 --config Release --target install --parallel 4
+
+      - name: Build
+        run: msbuild -t:Build '-p:Configuration=Release;platform=x64' -m:4
+
+      - name: Copy release files
+        run: |
+          New-Item -ItemType Directory -Path ./x64/Release/lib -Force
+          Copy-Item -Path ./lib/bass.dll -Destination ./x64/Release/bass.dll -Force
+          Copy-Item -Path ./lib/bass_fx.dll -Destination ./x64/Release/bass_fx.dll -Force
+          Copy-Item -Path ./lib/SciLexer.dll -Destination ./x64/Release/lib/SciLexer.dll -Force
+          Copy-Item -Path ./lib_source/taglib-build/x64/install/bin/tag.dll -Destination ./x64/Release/lib/tag.dll -Force
+          Copy-Item -Path ./MusicPlayer2/Plugins -Destination ./x64/Release/ -Recurse -Force
+          Copy-Item -Path ./MusicPlayer2/skins -Destination ./x64/Release/ -Recurse -Force
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: MusicPlayer2.x64
+          include-hidden-files: true
+          path: |
+            ./x64/Release/*.exe
+            ./x64/Release/*.dll
+            ./x64/Release/lib/
+            ./x64/Release/Plugins/
+            ./x64/Release/skins/
+
+      - name: Package other files
+        run: |
+          cd x64/Release
+          7z a -mx9 '../../MusicPlayer2.x64.other.7z' '-x!*.exe' '-x!*.dll' './*'
+
+      - name: Upload other files
+        uses: actions/upload-artifact@v4
+        with:
+          name: MusicPlayer2.x64.other
+          path: ./MusicPlayer2.x64.other.7z
