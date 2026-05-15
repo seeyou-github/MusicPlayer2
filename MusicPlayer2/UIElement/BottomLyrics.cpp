@@ -4,7 +4,6 @@
 #include "Player.h"
 #include "UserUi.h"
 #include "StackElement.h"
-#include "SongInfoHelper.h"
 #include <cstdlib>
 
 namespace
@@ -79,9 +78,8 @@ void UiElement::BottomLyrics::Draw()
     }
     else if (CPlayer::GetInstance().m_Lyrics.IsEmpty())
     {
-        const SongInfo& cur_song{ CPlayer::GetInstance().GetSafeCurrentSongInfo() };
-        if (!cur_song.IsEmpty())
-            current_text = CSongInfoHelper::GetDisplayStr(cur_song, DF_ARTIST_TITLE);
+        current_scroll_info.Reset();
+        next_scroll_info.Reset();
     }
     else
     {
