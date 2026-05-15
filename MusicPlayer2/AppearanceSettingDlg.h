@@ -79,6 +79,8 @@ protected:
     CSliderCtrlEx m_song_list_font_size_sld;
     CColorStatic m_song_list_text_color_static;
     CButton m_song_list_text_color_theme_chk;
+    CColorStatic m_song_list_playing_text_color_static;
+    CButton m_song_list_playing_text_color_theme_chk;
 
     CRect m_notify_icon_preview;
     CRect m_system_titlebar_preview_rect;
@@ -104,6 +106,7 @@ protected:
     void SetControlEnable();
     void CalculatePreviewBitmapRect();
     void UpdateSongListTextColorControls();
+    void UpdateSongListPlayingTextColorControls();
 
     virtual void GetDataFromUi() override;
     virtual void ApplyDataToUi() override;
@@ -143,6 +146,8 @@ public:
     afx_msg void OnBnClickedBtnRoundCornersCheck();
     afx_msg void OnBnClickedSongListTextColorButton();
     afx_msg void OnBnClickedSongListTextColorThemeCheck();
+    afx_msg void OnBnClickedSongListPlayingTextColorButton();
+    afx_msg void OnBnClickedSongListPlayingTextColorThemeCheck();
 protected:
     afx_msg LRESULT OnEditBrowseChanged(WPARAM wParam, LPARAM lParam);
 public:

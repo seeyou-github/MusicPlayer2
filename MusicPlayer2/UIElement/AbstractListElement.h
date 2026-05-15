@@ -101,6 +101,7 @@ namespace UiElement
         int EffectiveItemHeight() const;
         virtual int GetSongListCachedItemHeight() const { return 0; }
         COLORREF ListTextColor() const;
+        COLORREF ListTextColor(int row);
 
     protected:
         int item_height{ 28 };

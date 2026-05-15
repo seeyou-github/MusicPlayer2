@@ -23,6 +23,7 @@ struct UIColors     //界面颜色
     COLORREF color_scrollbar_handle;    //滚动条把手的颜色
     COLORREF color_list_selected;       //列表选中项的颜色
     COLORREF color_song_list_text;      //歌曲列表文字颜色
+    COLORREF color_song_list_playing_text; //歌曲列表正在播放歌曲文字颜色
     COLORREF color_statusbar_progress_back; //状态栏中进度条的背景颜色
 };
 

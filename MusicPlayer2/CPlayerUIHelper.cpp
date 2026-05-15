@@ -102,6 +102,7 @@ UIColors CPlayerUIHelper::GetUIColors(bool dark, bool draw_alpha)
     }
 
     colors.color_song_list_text = theApp.m_app_setting_data.song_list_custom_text_color ? theApp.m_app_setting_data.song_list_text_color : colors.color_text;
+    colors.color_song_list_playing_text = theApp.m_app_setting_data.song_list_custom_playing_text_color ? theApp.m_app_setting_data.song_list_playing_text_color : colors.color_song_list_text;
     return colors;
 }
 

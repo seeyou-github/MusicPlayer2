@@ -291,7 +291,7 @@ void CPlayListCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
                 {
                     this_item_select = true;
                     //SetItemState(nmcd.dwItemSpec, 0, LVIS_SELECTED);
-                    lplvdr->clrText = m_theme_color.light3;
+                    lplvdr->clrText = theApp.m_app_setting_data.song_list_custom_playing_text_color ? theApp.m_app_setting_data.song_list_playing_text_color : m_theme_color.light3;
                     lplvdr->clrTextBk = m_theme_color.dark1;
                 }
                 //设置选中行的颜色
@@ -305,7 +305,7 @@ void CPlayListCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
                 //设置高亮行的颜色
                 else if (nmcd.dwItemSpec == highlight_item)
                 {
-                    lplvdr->clrText = m_theme_color.dark2;
+                    lplvdr->clrText = theApp.m_app_setting_data.song_list_custom_playing_text_color ? theApp.m_app_setting_data.song_list_playing_text_color : m_theme_color.dark2;
                     //lplvdr->clrText = 0;
                     lplvdr->clrTextBk = m_theme_color.light3;
                 }

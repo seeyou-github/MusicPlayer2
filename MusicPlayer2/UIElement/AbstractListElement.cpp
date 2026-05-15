@@ -244,10 +244,11 @@ void UiElement::AbstractListElement::DrawScrollArea()
                     if (!draw_mini_spectrum || j > 0)//如果第1列绘制了迷你频谱，则不再绘制文本
                     {
                         DrawAreaGuard guard(&ui->GetDrawer(), clip_rect & rect_text);
+                        COLORREF text_color{ ListTextColor(i) };
                         if (!IsMultipleSelected() && i == GetItemSelected() && j == GetColumnScrollTextWhenSelected())
-                            ui->GetDrawer().DrawScrollText(rect_text, display_name.c_str(), ListTextColor(), ui->GetScrollTextPixel(), false, selected_item_scroll_info, false, true);
+                            ui->GetDrawer().DrawScrollText(rect_text, display_name.c_str(), text_color, ui->GetScrollTextPixel(), false, selected_item_scroll_info, false, true);
                         else
-                            ui->GetDrawer().DrawWindowText(rect_text, display_name.c_str(), ListTextColor(), Alignment::LEFT, true);
+                            ui->GetDrawer().DrawWindowText(rect_text, display_name.c_str(), text_color, Alignment::LEFT, true);
                     }
                     col_x = rect_cell.right;
                 }
@@ -650,6 +651,13 @@ COLORREF UiElement::AbstractListElement::ListTextColor() const
     if (IsSongList())
         return ui->GetUIColors().color_song_list_text;
     return ui->GetUIColors().color_text;
+}
+
+COLORREF UiElement::AbstractListElement::ListTextColor(int row)
+{
+    if (IsSongList() && IsHighlightRow(row))
+        return ui->GetUIColors().color_song_list_playing_text;
+    return ListTextColor();
 }
 
 void UiElement::AbstractListElement::SetItemSelected(int index)

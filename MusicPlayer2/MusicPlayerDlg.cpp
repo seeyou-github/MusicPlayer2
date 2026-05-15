@@ -458,6 +458,8 @@ void CMusicPlayerDlg::SaveConfig()
     ini.WriteInt(L"config", L"song_list_font_size", theApp.m_app_setting_data.song_list_font_size);
     ini.WriteBool(L"config", L"song_list_custom_text_color", theApp.m_app_setting_data.song_list_custom_text_color);
     ini.WriteInt(L"config", L"song_list_text_color", theApp.m_app_setting_data.song_list_text_color);
+    ini.WriteBool(L"config", L"song_list_custom_playing_text_color", theApp.m_app_setting_data.song_list_custom_playing_text_color);
+    ini.WriteInt(L"config", L"song_list_playing_text_color", theApp.m_app_setting_data.song_list_playing_text_color);
 
     ini.WriteBool(L"config", L"show_fps", theApp.m_app_setting_data.show_fps);
     ini.WriteBool(L"config", L"show_next_track", theApp.m_app_setting_data.show_next_track);
@@ -839,6 +841,8 @@ void CMusicPlayerDlg::LoadConfig()
     CCommon::SetNumRange(theApp.m_app_setting_data.song_list_font_size, 15, 30);
     theApp.m_app_setting_data.song_list_custom_text_color = ini.GetBool(L"config", L"song_list_custom_text_color", true);
     theApp.m_app_setting_data.song_list_text_color = ini.GetInt(L"config", L"song_list_text_color", RGB(192, 192, 192));
+    theApp.m_app_setting_data.song_list_custom_playing_text_color = ini.GetBool(L"config", L"song_list_custom_playing_text_color", false);
+    theApp.m_app_setting_data.song_list_playing_text_color = ini.GetInt(L"config", L"song_list_playing_text_color", 0);
     theApp.m_media_lib_setting_data.merge_song_different_versions = ini.GetBool(L"media_lib", L"merge_song_different_versions", false);
     theApp.m_media_lib_setting_data.recent_played_range = static_cast<RecentPlayedRange>(ini.GetInt(L"media_lib", L"recent_played_range", 0));
     theApp.m_media_lib_setting_data.display_item = ini.GetInt(L"media_lib", L"display_item", 131);
@@ -1382,7 +1386,9 @@ void CMusicPlayerDlg::ApplyApperanceSettings(const ApperanceSettingData& apperen
                                 || theApp.m_app_setting_data.remove_titlebar_top_frame != apperence_data.remove_titlebar_top_frame };
     bool song_list_appearance_changed{ theApp.m_app_setting_data.song_list_font_size != apperence_data.song_list_font_size
                                     || theApp.m_app_setting_data.song_list_custom_text_color != apperence_data.song_list_custom_text_color
-                                    || theApp.m_app_setting_data.song_list_text_color != apperence_data.song_list_text_color };
+                                    || theApp.m_app_setting_data.song_list_text_color != apperence_data.song_list_text_color
+                                    || theApp.m_app_setting_data.song_list_custom_playing_text_color != apperence_data.song_list_custom_playing_text_color
+                                    || theApp.m_app_setting_data.song_list_playing_text_color != apperence_data.song_list_playing_text_color };
     bool song_list_font_size_changed{ theApp.m_app_setting_data.song_list_font_size != apperence_data.song_list_font_size };
 
     theApp.m_app_setting_data = apperence_data;

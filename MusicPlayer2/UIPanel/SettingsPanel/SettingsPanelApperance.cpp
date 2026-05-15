@@ -69,6 +69,7 @@ void CSettingsPanelApperance::Init()
 
     song_list_font_size_value = m_root_element->FindElement<UiElement::Text>("songListFontSizeValue");
     song_list_text_color_value = m_root_element->FindElement<UiElement::Text>("songListTextColorValue");
+    song_list_playing_text_color_value = m_root_element->FindElement<UiElement::Text>("songListPlayingTextColorValue");
     song_list_font_size_slider = m_root_element->FindElement<UiElement::Slider>("songListFontSizeSlider");
     song_list_font_size_slider->BindIntValue(&m_data.song_list_font_size);
     song_list_font_size_slider->SetPosChangedTrigger([&](UiElement::Slider* sender) {
@@ -81,6 +82,14 @@ void CSettingsPanelApperance::Init()
     song_list_text_color_theme_btn = m_root_element->FindElement<UiElement::Button>("songListTextColorThemeBtn");
     song_list_text_color_theme_btn->SetClickedTrigger([&](UiElement::Button* sender) {
         OnSongListTextColorThemeClicked();
+    });
+    song_list_playing_text_color_btn = m_root_element->FindElement<UiElement::Button>("songListPlayingTextColorBtn");
+    song_list_playing_text_color_btn->SetClickedTrigger([&](UiElement::Button* sender) {
+        OnSongListPlayingTextColorClicked();
+    });
+    song_list_playing_text_color_theme_btn = m_root_element->FindElement<UiElement::Button>("songListPlayingTextColorThemeBtn");
+    song_list_playing_text_color_theme_btn->SetClickedTrigger([&](UiElement::Button* sender) {
+        OnSongListPlayingTextColorThemeClicked();
     });
 
 }
@@ -151,6 +160,28 @@ void CSettingsPanelApperance::OnSongListTextColorThemeClicked()
     OnSettingsChanged();
 }
 
+void CSettingsPanelApperance::OnSongListPlayingTextColorClicked()
+{
+    UpdateSettingsData();
+    COLORREF init_color{ m_data.song_list_custom_playing_text_color ? m_data.song_list_playing_text_color : CPlayerUIHelper::GetUIColors(theApp.m_app_setting_data.dark_mode).color_song_list_playing_text };
+    CColorDialog color_dlg(init_color, 0, theApp.m_pMainWnd);
+    if (color_dlg.DoModal() == IDOK)
+    {
+        m_data.song_list_custom_playing_text_color = true;
+        m_data.song_list_playing_text_color = color_dlg.GetColor();
+        UpdateSongListSettingText();
+        OnSettingsChanged();
+    }
+}
+
+void CSettingsPanelApperance::OnSongListPlayingTextColorThemeClicked()
+{
+    UpdateSettingsData();
+    m_data.song_list_custom_playing_text_color = false;
+    UpdateSongListSettingText();
+    OnSettingsChanged();
+}
+
 void CSettingsPanelApperance::UpdateSongListSettingText()
 {
     song_list_font_size_value->SetText(std::to_wstring(m_data.song_list_font_size));
@@ -167,5 +198,20 @@ void CSettingsPanelApperance::UpdateSongListSettingText()
         song_list_text_color_value->SetText(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_THEME"));
         song_list_text_color_btn->SetText(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_SELECT"));
         song_list_text_color_theme_btn->SetEnable(false);
+    }
+
+    if (m_data.song_list_custom_playing_text_color)
+    {
+        CString color_text;
+        color_text.Format(_T("#%02X%02X%02X"), GetRValue(m_data.song_list_playing_text_color), GetGValue(m_data.song_list_playing_text_color), GetBValue(m_data.song_list_playing_text_color));
+        song_list_playing_text_color_value->SetText(color_text.GetString());
+        song_list_playing_text_color_btn->SetText(color_text.GetString());
+        song_list_playing_text_color_theme_btn->SetEnable(true);
+    }
+    else
+    {
+        song_list_playing_text_color_value->SetText(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_THEME"));
+        song_list_playing_text_color_btn->SetText(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_SELECT"));
+        song_list_playing_text_color_theme_btn->SetEnable(false);
     }
 }

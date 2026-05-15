@@ -26,6 +26,8 @@ private:
     void OnSongListFontSizeChanged();
     void OnSongListTextColorClicked();
     void OnSongListTextColorThemeClicked();
+    void OnSongListPlayingTextColorClicked();
+    void OnSongListPlayingTextColorThemeClicked();
     void UpdateSongListSettingText();
 
 private:
@@ -45,5 +47,8 @@ private:
     UiElement::Text* song_list_text_color_value{};
     UiElement::Button* song_list_text_color_btn{};
     UiElement::Button* song_list_text_color_theme_btn{};
+    UiElement::Text* song_list_playing_text_color_value{};
+    UiElement::Button* song_list_playing_text_color_btn{};
+    UiElement::Button* song_list_playing_text_color_theme_btn{};
 };
 

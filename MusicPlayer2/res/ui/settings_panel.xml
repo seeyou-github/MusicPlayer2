@@ -59,6 +59,17 @@
                 </horizontalLayout>
               </rectangle>
               <!--显示频谱分析选项-->
+              <rectangle height="60" margin-top="4">
+                <horizontalLayout>
+                  <icon icon="setting" width="52"/>
+                  <verticalLayout>
+                    <text font_size="10" text="%(TXT_OPT_APC_SONG_LIST_PLAYING_TEXT_COLOR)" height="20"/>
+                    <text id="songListPlayingTextColorValue" color_style="emphasis1" height="20"/>
+                  </verticalLayout>
+                  <button id="songListPlayingTextColorBtn" icon="setting" show_text="true" text="%(TXT_OPT_APC_SONG_LIST_TEXT_COLOR_SELECT)" height="32" width="96" margin-right="8"/>
+                  <button id="songListPlayingTextColorThemeBtn" icon="cancel" show_text="true" text="%(TXT_OPT_APC_SONG_LIST_TEXT_COLOR_THEME)" height="32" width="96" margin-right="16"/>
+                </horizontalLayout>
+              </rectangle>
               <toggleSettingGroup id="showSpectrum" height="60" margin-top="4" icon="reverb" mainText="%(TXT_OPT_APC_SPECTRUM_SHOW)" subText="%(TXT_OPT_DESC_SHOW_SPECTRUM)"/>
               <!--显示专辑封面选项-->
               <toggleSettingGroup id="showAlbumCover" height="60" margin-top="4" icon="albumCover" mainText="%(TXT_OPT_APC_COVER_SHOW)" subText="%(TXT_OPT_DESC_SHOW_ALBUM_COVER)"/>

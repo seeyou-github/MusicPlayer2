@@ -278,6 +278,8 @@ struct ApperanceSettingData
     int song_list_font_size{ 16 };      //歌曲列表文字大小
     bool song_list_custom_text_color{ true }; //歌曲列表是否使用自定义文字颜色
     COLORREF song_list_text_color{ RGB(192, 192, 192) }; //歌曲列表文字颜色
+    bool song_list_custom_playing_text_color{ false }; //歌曲列表正在播放歌曲是否使用自定义文字颜色
+    COLORREF song_list_playing_text_color{}; //歌曲列表正在播放歌曲文字颜色
 
     bool show_window_frame{ true };     //显示标准窗口边框
     bool show_minimize_btn_in_titlebar{ true };     //是否在标题栏显示“最小化”按钮

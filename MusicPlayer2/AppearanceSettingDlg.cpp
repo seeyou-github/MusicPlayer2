@@ -59,6 +59,12 @@ bool CAppearanceSettingDlg::InitializeControls()
     SetDlgItemTextW(IDC_SONG_LIST_TEXT_COLOR_BUTTON, temp.c_str());
     temp = theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_THEME");
     SetDlgItemTextW(IDC_SONG_LIST_TEXT_COLOR_THEME_CHECK, temp.c_str());
+    temp = theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_PLAYING_TEXT_COLOR");
+    SetDlgItemTextW(IDC_TXT_SONG_LIST_PLAYING_TEXT_COLOR_STATIC, temp.c_str());
+    temp = theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_SELECT");
+    SetDlgItemTextW(IDC_SONG_LIST_PLAYING_TEXT_COLOR_BUTTON, temp.c_str());
+    temp = theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_THEME");
+    SetDlgItemTextW(IDC_SONG_LIST_PLAYING_TEXT_COLOR_THEME_CHECK, temp.c_str());
 
     temp = theApp.m_str_table.LoadText(L"TXT_OPT_APC_BG_SETTING");
     SetDlgItemTextW(IDC_TXT_BG_SETTING_STATIC, temp.c_str());
@@ -203,6 +209,8 @@ void CAppearanceSettingDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_SONG_LIST_FONT_SIZE_SLIDER, m_song_list_font_size_sld);
     DDX_Control(pDX, IDC_SONG_LIST_TEXT_COLOR_STATIC, m_song_list_text_color_static);
     DDX_Control(pDX, IDC_SONG_LIST_TEXT_COLOR_THEME_CHECK, m_song_list_text_color_theme_chk);
+    DDX_Control(pDX, IDC_SONG_LIST_PLAYING_TEXT_COLOR_STATIC, m_song_list_playing_text_color_static);
+    DDX_Control(pDX, IDC_SONG_LIST_PLAYING_TEXT_COLOR_THEME_CHECK, m_song_list_playing_text_color_theme_chk);
     DDX_Control(pDX, IDC_DEFAULT_BACKGROUND_PATH_EDIT, m_default_background_edit);
     DDX_Control(pDX, IDC_DEFAULT_COVER_NAME_EDIT, m_album_cover_name_edit);
     DDX_Control(pDX, IDC_ALBUM_COVER_PATH_EDIT, m_album_cover_path_edit);
@@ -266,6 +274,8 @@ void CAppearanceSettingDlg::SetControlEnable()
 
     m_song_list_text_color_static.EnableWindow(m_data.song_list_custom_text_color);
     EnableDlgCtrl(IDC_SONG_LIST_TEXT_COLOR_BUTTON, true);
+    m_song_list_playing_text_color_static.EnableWindow(m_data.song_list_custom_playing_text_color);
+    EnableDlgCtrl(IDC_SONG_LIST_PLAYING_TEXT_COLOR_BUTTON, true);
 
     EnableDlgCtrl(IDC_COMBO1, m_data.show_notify_icon);
     EnableDlgCtrl(IDC_NOTIFY_ICON_AUTO_ADAPT_CHECK, m_data.show_notify_icon);
@@ -312,6 +322,14 @@ void CAppearanceSettingDlg::UpdateSongListTextColorControls()
     m_song_list_text_color_static.SetFillColor(m_data.song_list_custom_text_color ? m_data.song_list_text_color : CPlayerUIHelper::GetUIColors(m_data.dark_mode).color_text);
     m_song_list_text_color_static.EnableWindow(m_data.song_list_custom_text_color);
     EnableDlgCtrl(IDC_SONG_LIST_TEXT_COLOR_BUTTON, true);
+}
+
+void CAppearanceSettingDlg::UpdateSongListPlayingTextColorControls()
+{
+    m_song_list_playing_text_color_theme_chk.SetCheck(!m_data.song_list_custom_playing_text_color);
+    m_song_list_playing_text_color_static.SetFillColor(m_data.song_list_custom_playing_text_color ? m_data.song_list_playing_text_color : CPlayerUIHelper::GetUIColors(m_data.dark_mode).color_song_list_playing_text);
+    m_song_list_playing_text_color_static.EnableWindow(m_data.song_list_custom_playing_text_color);
+    EnableDlgCtrl(IDC_SONG_LIST_PLAYING_TEXT_COLOR_BUTTON, true);
 }
 
 void CAppearanceSettingDlg::GetDataFromUi()
@@ -393,6 +411,8 @@ BEGIN_MESSAGE_MAP(CAppearanceSettingDlg, CTabDlg)
     ON_BN_CLICKED(IDC_BTN_ROUND_CORNERS_CHECK, &CAppearanceSettingDlg::OnBnClickedBtnRoundCornersCheck)
     ON_BN_CLICKED(IDC_SONG_LIST_TEXT_COLOR_BUTTON, &CAppearanceSettingDlg::OnBnClickedSongListTextColorButton)
     ON_BN_CLICKED(IDC_SONG_LIST_TEXT_COLOR_THEME_CHECK, &CAppearanceSettingDlg::OnBnClickedSongListTextColorThemeCheck)
+    ON_BN_CLICKED(IDC_SONG_LIST_PLAYING_TEXT_COLOR_BUTTON, &CAppearanceSettingDlg::OnBnClickedSongListPlayingTextColorButton)
+    ON_BN_CLICKED(IDC_SONG_LIST_PLAYING_TEXT_COLOR_THEME_CHECK, &CAppearanceSettingDlg::OnBnClickedSongListPlayingTextColorThemeCheck)
     ON_MESSAGE(WM_EDIT_BROWSE_CHANGED, &CAppearanceSettingDlg::OnEditBrowseChanged)
     ON_BN_CLICKED(IDC_USE_DESKTOP_BACKGROUND_CHECK, &CAppearanceSettingDlg::OnBnClickedUseDesktopBackgroundCheck)
     ON_BN_CLICKED(IDC_SHOW_NEXT_CHECK, &CAppearanceSettingDlg::OnBnClickedShowNextCheck)
@@ -508,6 +528,7 @@ BOOL CAppearanceSettingDlg::OnInitDialog()
     str.Format(_T("%d"), m_data.song_list_font_size);
     SetDlgItemText(IDC_SONG_LIST_FONT_SIZE_STATIC, str);
     UpdateSongListTextColorControls();
+    UpdateSongListPlayingTextColorControls();
 
     m_default_background_edit.SetWindowText(m_data.default_background.c_str());
     wstring img_fliter = FilterHelper::GetImageFileFilter();
@@ -894,6 +915,26 @@ void CAppearanceSettingDlg::OnBnClickedSongListTextColorThemeCheck()
     if (m_data.song_list_custom_text_color && m_data.song_list_text_color == 0)
         m_data.song_list_text_color = CPlayerUIHelper::GetUIColors(m_data.dark_mode).color_text;
     UpdateSongListTextColorControls();
+}
+
+void CAppearanceSettingDlg::OnBnClickedSongListPlayingTextColorButton()
+{
+    COLORREF init_color{ m_data.song_list_custom_playing_text_color ? m_data.song_list_playing_text_color : CPlayerUIHelper::GetUIColors(m_data.dark_mode).color_song_list_playing_text };
+    CColorDialog color_dlg(init_color, 0, this);
+    if (color_dlg.DoModal() == IDOK)
+    {
+        m_data.song_list_custom_playing_text_color = true;
+        m_data.song_list_playing_text_color = color_dlg.GetColor();
+        UpdateSongListPlayingTextColorControls();
+    }
+}
+
+void CAppearanceSettingDlg::OnBnClickedSongListPlayingTextColorThemeCheck()
+{
+    m_data.song_list_custom_playing_text_color = (m_song_list_playing_text_color_theme_chk.GetCheck() == 0);
+    if (m_data.song_list_custom_playing_text_color && m_data.song_list_playing_text_color == 0)
+        m_data.song_list_playing_text_color = CPlayerUIHelper::GetUIColors(m_data.dark_mode).color_song_list_playing_text;
+    UpdateSongListPlayingTextColorControls();
 }
 
 
