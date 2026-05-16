@@ -128,8 +128,13 @@ void CColorSettingDlg::AddThemeControls(int& y)
     CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_THEME"), CRect(theApp.DPI(12), y, theApp.DPI(130), y + theApp.DPI(18)));
     y += theApp.DPI(22);
 
-    m_theme_color_preview = CreateColorPreview(m_app_data.theme_color.original_color, CRect(theApp.DPI(32), y, theApp.DPI(58), y + theApp.DPI(28)));
-    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_PRESET"), CRect(theApp.DPI(90), y, theApp.DPI(150), y + theApp.DPI(18)));
+    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_THEME"), CRect(theApp.DPI(24), y + theApp.DPI(3), theApp.DPI(170), y + theApp.DPI(19)), WS_CHILD | WS_VISIBLE | SS_RIGHT);
+    m_theme_color_preview = CreateColorPreview(m_app_data.theme_color.original_color, CRect(theApp.DPI(190), y, theApp.DPI(213), y + theApp.DPI(18)));
+    m_more_theme_color_btn = CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_MORE"),
+        CRect(theApp.DPI(230), y, theApp.DPI(310), y + theApp.DPI(20)), ID_THEME_MORE_COLOR);
+    y += theApp.DPI(34);
+
+    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_PRESET"), CRect(theApp.DPI(24), y + theApp.DPI(3), theApp.DPI(170), y + theApp.DPI(19)), WS_CHILD | WS_VISIBLE | SS_RIGHT);
     const COLORREF preset_colors[] = {
         RGB(134, 186, 249), RGB(115, 210, 45), RGB(255, 164, 16), RGB(33, 147, 167),
         RGB(249, 153, 197), RGB(162, 161, 216), RGB(110, 110, 110)
@@ -137,16 +142,16 @@ void CColorSettingDlg::AddThemeControls(int& y)
     for (int i{}; i < static_cast<int>(_countof(preset_colors)); ++i)
     {
         CColorStatic* preset = CreateColorPreview(preset_colors[i],
-            CRect(theApp.DPI(92 + i * 22), y + theApp.DPI(20), theApp.DPI(108 + i * 22), y + theApp.DPI(36)),
+            CRect(theApp.DPI(190 + i * 25), y, theApp.DPI(211 + i * 25), y + theApp.DPI(18)),
             ID_THEME_PRESET_BASE + i);
         m_theme_presets.push_back(preset);
     }
-    m_more_theme_color_btn = CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_MORE"),
-        CRect(theApp.DPI(230), y + theApp.DPI(12), theApp.DPI(310), y + theApp.DPI(34)), ID_THEME_MORE_COLOR);
+    y += theApp.DPI(34);
+
     m_follow_system_color_chk = CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_FOLLOW_SYSTEM"),
-        CRect(theApp.DPI(230), y + theApp.DPI(42), theApp.DPI(330), y + theApp.DPI(60)), ID_THEME_FOLLOW_SYSTEM,
+        CRect(theApp.DPI(190), y, theApp.DPI(330), y + theApp.DPI(18)), ID_THEME_FOLLOW_SYSTEM,
         WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX);
-    y += theApp.DPI(82);
+    y += theApp.DPI(34);
 }
 
 void CColorSettingDlg::AddSongListColorControls(int& y)
