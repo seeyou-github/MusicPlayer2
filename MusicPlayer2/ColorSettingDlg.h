@@ -86,4 +86,5 @@ private:
     CComboBox* m_text_gradient_combo{};
     CComboBox* m_highlight_gradient_combo{};
     int m_next_color_button_id{};
+    int m_content_height{};
 };

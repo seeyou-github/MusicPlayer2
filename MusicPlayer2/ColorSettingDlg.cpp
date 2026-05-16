@@ -65,6 +65,9 @@ BOOL CColorSettingDlg::OnInitDialog()
 {
     CTabDlg::OnInitDialog();
     CreateControls();
+    CRect rect;
+    GetWindowRect(rect);
+    SetWindowPos(nullptr, 0, 0, rect.Width(), m_content_height, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
     ApplyDataToUi();
     return TRUE;
 }
@@ -101,6 +104,8 @@ void CColorSettingDlg::CreateControls()
     AddColorRow(L"progress_back_color", &m_app_data.progress_back_color, y);
     AddColorRow(L"progress_color", &m_app_data.progress_color, y);
     AddColorRow(L"time_color", &m_app_data.progress_time_color, y);
+
+    m_content_height = y + theApp.DPI(20);
 }
 
 void CColorSettingDlg::AddSection(const std::wstring& text, int& y)
@@ -175,12 +180,12 @@ void CColorSettingDlg::AddDesktopLyricColorControls(int& y)
     AddSection(theApp.m_str_table.LoadText(L"TXT_OPT_COLOR_DESKTOP_LYRIC"), y);
     AddColorRow(theApp.m_str_table.LoadText(L"TXT_OPT_LRC_DESKTOP_LRC_COLOR_TEXT"), &m_lyric_data.desktop_lyric_data.text_color1, y);
     AddColorRow(L"", &m_lyric_data.desktop_lyric_data.text_color2, y);
-    m_text_gradient_combo = CreateCombo(CRect(theApp.DPI(BUTTON_LEFT), y - theApp.DPI(53), theApp.DPI(EXTRA_RIGHT), y - theApp.DPI(30)), ID_TEXT_GRADIENT_COMBO);
+    m_text_gradient_combo = CreateCombo(CRect(theApp.DPI(EXTRA_LEFT), y - theApp.DPI(53), theApp.DPI(EXTRA_RIGHT), y - theApp.DPI(30)), ID_TEXT_GRADIENT_COMBO);
     AddColorRow(theApp.m_str_table.LoadText(L"TXT_OPT_LRC_DESKTOP_LRC_COLOR_HIGHLIGHT"), &m_lyric_data.desktop_lyric_data.highlight_color1, y);
     AddColorRow(L"", &m_lyric_data.desktop_lyric_data.highlight_color2, y);
-    m_highlight_gradient_combo = CreateCombo(CRect(theApp.DPI(BUTTON_LEFT), y - theApp.DPI(53), theApp.DPI(EXTRA_RIGHT), y - theApp.DPI(30)), ID_HIGHLIGHT_GRADIENT_COMBO);
+    m_highlight_gradient_combo = CreateCombo(CRect(theApp.DPI(EXTRA_LEFT), y - theApp.DPI(53), theApp.DPI(EXTRA_RIGHT), y - theApp.DPI(30)), ID_HIGHLIGHT_GRADIENT_COMBO);
     CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_LRC_DESKTOP_LRC_DEFAULT_STYLE"),
-        CRect(theApp.DPI(BUTTON_LEFT), y - theApp.DPI(22), theApp.DPI(EXTRA_RIGHT), y), ID_DESKTOP_LYRIC_DEFAULT_STYLE);
+        CRect(theApp.DPI(EXTRA_LEFT), y - theApp.DPI(22), theApp.DPI(EXTRA_RIGHT), y), ID_DESKTOP_LYRIC_DEFAULT_STYLE);
     y += theApp.DPI(8);
 }
 
