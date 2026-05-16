@@ -8,13 +8,14 @@ namespace
 {
     constexpr int ID_COLOR_BUTTON_BASE{ 30000 };
     constexpr int ID_THEME_PRESET_BASE{ 30100 };
-    constexpr int ID_THEME_MORE_COLOR{ 30120 };
-    constexpr int ID_THEME_FOLLOW_SYSTEM{ 30121 };
-    constexpr int ID_SONG_LIST_TEXT_THEME{ 30122 };
-    constexpr int ID_SONG_LIST_PLAYING_TEXT_THEME{ 30123 };
-    constexpr int ID_TEXT_GRADIENT_COMBO{ 30124 };
-    constexpr int ID_HIGHLIGHT_GRADIENT_COMBO{ 30125 };
-    constexpr int ID_DESKTOP_LYRIC_DEFAULT_STYLE{ 30126 };
+    constexpr int ID_THEME_PRESET_END{ ID_THEME_PRESET_BASE + 20 };
+    constexpr int ID_THEME_MORE_COLOR{ 30200 };
+    constexpr int ID_THEME_FOLLOW_SYSTEM{ 30201 };
+    constexpr int ID_SONG_LIST_TEXT_THEME{ 30202 };
+    constexpr int ID_SONG_LIST_PLAYING_TEXT_THEME{ 30203 };
+    constexpr int ID_TEXT_GRADIENT_COMBO{ 30204 };
+    constexpr int ID_HIGHLIGHT_GRADIENT_COMBO{ 30205 };
+    constexpr int ID_DESKTOP_LYRIC_DEFAULT_STYLE{ 30206 };
 
     constexpr int LABEL_LEFT{ 20 };
     constexpr int LABEL_RIGHT{ 250 };
@@ -39,7 +40,7 @@ CColorSettingDlg::~CColorSettingDlg()
 
 BEGIN_MESSAGE_MAP(CColorSettingDlg, CTabDlg)
     ON_COMMAND_RANGE(ID_COLOR_BUTTON_BASE, ID_COLOR_BUTTON_BASE + 99, &CColorSettingDlg::OnSelectColor)
-    ON_CONTROL_RANGE(STN_CLICKED, ID_THEME_PRESET_BASE, ID_THEME_PRESET_BASE + 20, &CColorSettingDlg::OnThemePreset)
+    ON_CONTROL_RANGE(STN_CLICKED, ID_THEME_PRESET_BASE, ID_THEME_PRESET_END, &CColorSettingDlg::OnThemePreset)
     ON_BN_CLICKED(ID_THEME_MORE_COLOR, &CColorSettingDlg::OnBnClickedMoreThemeColor)
     ON_BN_CLICKED(ID_THEME_FOLLOW_SYSTEM, &CColorSettingDlg::OnBnClickedFollowSystemColor)
     ON_BN_CLICKED(ID_SONG_LIST_TEXT_THEME, &CColorSettingDlg::OnBnClickedSongListTextColorTheme)
