@@ -16,12 +16,14 @@ namespace
     constexpr int ID_HIGHLIGHT_GRADIENT_COMBO{ 30125 };
     constexpr int ID_DESKTOP_LYRIC_DEFAULT_STYLE{ 30126 };
 
-    CString ColorToString(COLORREF color)
-    {
-        CString color_text;
-        color_text.Format(_T("#%02X%02X%02X"), GetRValue(color), GetGValue(color), GetBValue(color));
-        return color_text;
-    }
+    constexpr int LABEL_LEFT{ 20 };
+    constexpr int LABEL_RIGHT{ 250 };
+    constexpr int PREVIEW_LEFT{ 270 };
+    constexpr int PREVIEW_RIGHT{ 295 };
+    constexpr int BUTTON_LEFT{ 320 };
+    constexpr int BUTTON_RIGHT{ 410 };
+    constexpr int EXTRA_LEFT{ 430 };
+    constexpr int EXTRA_RIGHT{ 560 };
 }
 
 IMPLEMENT_DYNAMIC(CColorSettingDlg, CTabDlg)
@@ -103,7 +105,7 @@ void CColorSettingDlg::CreateControls()
 
 void CColorSettingDlg::AddSection(const std::wstring& text, int& y)
 {
-    CreateStatic(text, CRect(theApp.DPI(12), y, theApp.DPI(320), y + theApp.DPI(18)));
+    CreateStatic(text, CRect(theApp.DPI(12), y, theApp.DPI(560), y + theApp.DPI(18)));
     y += theApp.DPI(26);
 }
 
@@ -112,12 +114,12 @@ void CColorSettingDlg::AddColorRow(const std::wstring& text, COLORREF* color, in
     auto row = std::make_unique<ColorRow>();
     row->id = m_next_color_button_id++;
     row->color = color;
-    row->label.Create(text.c_str(), WS_CHILD | WS_VISIBLE | SS_RIGHT, CRect(theApp.DPI(24), y + theApp.DPI(3), theApp.DPI(170), y + theApp.DPI(19)), this);
+    row->label.Create(text.c_str(), WS_CHILD | WS_VISIBLE | SS_RIGHT, CRect(theApp.DPI(LABEL_LEFT), y + theApp.DPI(3), theApp.DPI(LABEL_RIGHT), y + theApp.DPI(19)), this);
     SetControlFont(row->label);
-    row->preview.Create(std::wstring().c_str(), WS_CHILD | WS_VISIBLE | SS_NOTIFY | WS_BORDER, CRect(theApp.DPI(190), y, theApp.DPI(213), y + theApp.DPI(18)), this, row->id);
+    row->preview.Create(std::wstring().c_str(), WS_CHILD | WS_VISIBLE | SS_NOTIFY | WS_BORDER, CRect(theApp.DPI(PREVIEW_LEFT), y, theApp.DPI(PREVIEW_RIGHT), y + theApp.DPI(18)), this, row->id);
     row->preview.SetFillColor(*color);
     row->button.Create(theApp.m_str_table.LoadText(L"TXT_OPT_COLOR_SELECT").c_str(), WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
-        CRect(theApp.DPI(230), y, theApp.DPI(295), y + theApp.DPI(20)), this, row->id);
+        CRect(theApp.DPI(BUTTON_LEFT), y, theApp.DPI(BUTTON_RIGHT), y + theApp.DPI(20)), this, row->id);
     SetControlFont(row->button);
     m_color_rows.push_back(std::move(row));
     y += theApp.DPI(28);
@@ -125,16 +127,16 @@ void CColorSettingDlg::AddColorRow(const std::wstring& text, COLORREF* color, in
 
 void CColorSettingDlg::AddThemeControls(int& y)
 {
-    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_THEME"), CRect(theApp.DPI(12), y, theApp.DPI(130), y + theApp.DPI(18)));
+    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_THEME"), CRect(theApp.DPI(12), y, theApp.DPI(560), y + theApp.DPI(18)));
     y += theApp.DPI(22);
 
-    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_THEME"), CRect(theApp.DPI(24), y + theApp.DPI(3), theApp.DPI(170), y + theApp.DPI(19)), WS_CHILD | WS_VISIBLE | SS_RIGHT);
-    m_theme_color_preview = CreateColorPreview(m_app_data.theme_color.original_color, CRect(theApp.DPI(190), y, theApp.DPI(213), y + theApp.DPI(18)));
+    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_THEME"), CRect(theApp.DPI(LABEL_LEFT), y + theApp.DPI(3), theApp.DPI(LABEL_RIGHT), y + theApp.DPI(19)), WS_CHILD | WS_VISIBLE | SS_RIGHT);
+    m_theme_color_preview = CreateColorPreview(m_app_data.theme_color.original_color, CRect(theApp.DPI(PREVIEW_LEFT), y, theApp.DPI(PREVIEW_RIGHT), y + theApp.DPI(18)));
     m_more_theme_color_btn = CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_MORE"),
-        CRect(theApp.DPI(230), y, theApp.DPI(310), y + theApp.DPI(20)), ID_THEME_MORE_COLOR);
+        CRect(theApp.DPI(BUTTON_LEFT), y, theApp.DPI(BUTTON_RIGHT), y + theApp.DPI(20)), ID_THEME_MORE_COLOR);
     y += theApp.DPI(34);
 
-    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_PRESET"), CRect(theApp.DPI(24), y + theApp.DPI(3), theApp.DPI(170), y + theApp.DPI(19)), WS_CHILD | WS_VISIBLE | SS_RIGHT);
+    CreateStatic(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_PRESET"), CRect(theApp.DPI(LABEL_LEFT), y + theApp.DPI(3), theApp.DPI(LABEL_RIGHT), y + theApp.DPI(19)), WS_CHILD | WS_VISIBLE | SS_RIGHT);
     const COLORREF preset_colors[] = {
         RGB(134, 186, 249), RGB(115, 210, 45), RGB(255, 164, 16), RGB(33, 147, 167),
         RGB(249, 153, 197), RGB(162, 161, 216), RGB(110, 110, 110)
@@ -142,14 +144,14 @@ void CColorSettingDlg::AddThemeControls(int& y)
     for (int i{}; i < static_cast<int>(_countof(preset_colors)); ++i)
     {
         CColorStatic* preset = CreateColorPreview(preset_colors[i],
-            CRect(theApp.DPI(190 + i * 25), y, theApp.DPI(211 + i * 25), y + theApp.DPI(18)),
+            CRect(theApp.DPI(PREVIEW_LEFT + i * 28), y, theApp.DPI(PREVIEW_LEFT + 24 + i * 28), y + theApp.DPI(18)),
             ID_THEME_PRESET_BASE + i);
         m_theme_presets.push_back(preset);
     }
     y += theApp.DPI(34);
 
     m_follow_system_color_chk = CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COLOR_FOLLOW_SYSTEM"),
-        CRect(theApp.DPI(190), y, theApp.DPI(330), y + theApp.DPI(18)), ID_THEME_FOLLOW_SYSTEM,
+        CRect(theApp.DPI(PREVIEW_LEFT), y, theApp.DPI(EXTRA_RIGHT), y + theApp.DPI(18)), ID_THEME_FOLLOW_SYSTEM,
         WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX);
     y += theApp.DPI(34);
 }
@@ -159,11 +161,11 @@ void CColorSettingDlg::AddSongListColorControls(int& y)
     AddSection(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR"), y);
     AddColorRow(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR"), &m_app_data.song_list_text_color, y);
     m_song_list_text_color_theme_chk = CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_THEME"),
-        CRect(theApp.DPI(245), y - theApp.DPI(25), theApp.DPI(330), y - theApp.DPI(7)), ID_SONG_LIST_TEXT_THEME,
+        CRect(theApp.DPI(EXTRA_LEFT), y - theApp.DPI(25), theApp.DPI(EXTRA_RIGHT), y - theApp.DPI(7)), ID_SONG_LIST_TEXT_THEME,
         WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX);
     AddColorRow(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_PLAYING_TEXT_COLOR"), &m_app_data.song_list_playing_text_color, y);
     m_song_list_playing_text_color_theme_chk = CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_APC_SONG_LIST_TEXT_COLOR_THEME"),
-        CRect(theApp.DPI(245), y - theApp.DPI(25), theApp.DPI(330), y - theApp.DPI(7)), ID_SONG_LIST_PLAYING_TEXT_THEME,
+        CRect(theApp.DPI(EXTRA_LEFT), y - theApp.DPI(25), theApp.DPI(EXTRA_RIGHT), y - theApp.DPI(7)), ID_SONG_LIST_PLAYING_TEXT_THEME,
         WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX);
     y += theApp.DPI(8);
 }
@@ -173,12 +175,12 @@ void CColorSettingDlg::AddDesktopLyricColorControls(int& y)
     AddSection(theApp.m_str_table.LoadText(L"TXT_OPT_COLOR_DESKTOP_LYRIC"), y);
     AddColorRow(theApp.m_str_table.LoadText(L"TXT_OPT_LRC_DESKTOP_LRC_COLOR_TEXT"), &m_lyric_data.desktop_lyric_data.text_color1, y);
     AddColorRow(L"", &m_lyric_data.desktop_lyric_data.text_color2, y);
-    m_text_gradient_combo = CreateCombo(CRect(theApp.DPI(230), y - theApp.DPI(53), theApp.DPI(330), y - theApp.DPI(30)), ID_TEXT_GRADIENT_COMBO);
+    m_text_gradient_combo = CreateCombo(CRect(theApp.DPI(BUTTON_LEFT), y - theApp.DPI(53), theApp.DPI(EXTRA_RIGHT), y - theApp.DPI(30)), ID_TEXT_GRADIENT_COMBO);
     AddColorRow(theApp.m_str_table.LoadText(L"TXT_OPT_LRC_DESKTOP_LRC_COLOR_HIGHLIGHT"), &m_lyric_data.desktop_lyric_data.highlight_color1, y);
     AddColorRow(L"", &m_lyric_data.desktop_lyric_data.highlight_color2, y);
-    m_highlight_gradient_combo = CreateCombo(CRect(theApp.DPI(230), y - theApp.DPI(53), theApp.DPI(330), y - theApp.DPI(30)), ID_HIGHLIGHT_GRADIENT_COMBO);
+    m_highlight_gradient_combo = CreateCombo(CRect(theApp.DPI(BUTTON_LEFT), y - theApp.DPI(53), theApp.DPI(EXTRA_RIGHT), y - theApp.DPI(30)), ID_HIGHLIGHT_GRADIENT_COMBO);
     CreateButton(theApp.m_str_table.LoadText(L"TXT_OPT_LRC_DESKTOP_LRC_DEFAULT_STYLE"),
-        CRect(theApp.DPI(230), y - theApp.DPI(22), theApp.DPI(330), y), ID_DESKTOP_LYRIC_DEFAULT_STYLE);
+        CRect(theApp.DPI(BUTTON_LEFT), y - theApp.DPI(22), theApp.DPI(EXTRA_RIGHT), y), ID_DESKTOP_LYRIC_DEFAULT_STYLE);
     y += theApp.DPI(8);
 }
 
