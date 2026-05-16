@@ -11,6 +11,7 @@
 #include "Player.h"
 #include "CRecentList.h"
 #include "MusicPlayerCmdHelper.h"
+#include "UIWindowCmdHelper.h"
 #include "CommonDialogMgr.h"
 #include "COSUPlayerHelper.h"
 
@@ -1090,6 +1091,8 @@ void UiElement::MyPlayerList::MoveFilesToFolderTab(int target_tab_index)
 {
     if (!IsFolderTab(target_tab_index) || target_tab_index == m_selected_tab)
         return;
+
+    const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
 
     vector<int> selected_indexes;
     GetItemsSelected(selected_indexes);
