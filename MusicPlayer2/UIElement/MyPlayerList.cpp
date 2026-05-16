@@ -126,6 +126,7 @@ bool UiElement::MyPlayerList::RButtonUp(CPoint point)
             }
             if (move_menu_pos >= 0)
             {
+                const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
                 CMenu sub_menu;
                 sub_menu.CreatePopupMenu();
                 vector<int> target_tabs;
