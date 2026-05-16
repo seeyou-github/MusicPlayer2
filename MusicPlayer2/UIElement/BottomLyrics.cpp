@@ -39,8 +39,13 @@ namespace
 void UiElement::BottomLyrics::Draw()
 {
     CalculateRect();
-    if (rect.Height() < ui->DPI(8) || theApp.m_lyric_setting_data.show_desktop_lyric || IsPlayDetailPageShown())
+    if (rect.Height() < ui->DPI(8) || theApp.m_lyric_setting_data.show_desktop_lyric || IsPlayDetailPageShown() || !CPlayer::GetInstance().IsPlaying())
+    {
+        current_scroll_info.Reset();
+        next_scroll_info.Reset();
+        double_line_flag = 0;
         return;
+    }
 
     FontInfo lyric_font_info{ theApp.m_lyric_setting_data.lyric_font };
     CCommon::SetNumRange(font_size, 5, 72);
