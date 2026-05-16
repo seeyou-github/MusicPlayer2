@@ -94,6 +94,8 @@ bool CLyricDownloadDlg::PrepareLyricForDisplayAndSave(const CLyricDownloadCommon
         return false;
 
     CLyricDownloadCommon::AddLyricTag(result, item.id, item.title, item.artist, item.album);
+    if (CLyricDownloadCommon::ShouldSkipSavingLyric(result))
+        return false;
 
     CLyrics lyrics;
     auto lyric_type = CLyrics::LyricType::LY_LRC;

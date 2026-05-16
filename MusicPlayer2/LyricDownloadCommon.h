@@ -75,6 +75,7 @@ public:
 	virtual bool DisposeLryic(wstring& lyric_str, bool download_translate) = 0;
 
 	static void AddLyricTag(wstring& lyric_str, const wstring& song_id, const wstring& title = _T(""), const wstring& artist = _T(""), const wstring& album = _T(""));		//在歌词前面加上标签信息
+	static bool ShouldSkipSavingLyric(const wstring& lyric_str);
 
 	//根据参数提供的歌曲标题、艺术家、唱片集和文件名，在down_list容器中查找最匹配的一项，并返回索引的值
 	static int SelectMatchedItem(const vector<ItemInfo>& down_list, const wstring& title, const wstring& artist, const wstring& album, const wstring& filename, bool write_log = false);

@@ -404,6 +404,13 @@ UINT CLyricBatchDownloadDlg::ThreadFunc(LPVOID lpParam)
 
         //在歌词前面添加标签
         CLyricDownloadCommon::AddLyricTag(lyric_str, down_list[best_matched].id, down_list[best_matched].title, down_list[best_matched].artist, down_list[best_matched].album);
+        if (CLyricDownloadCommon::ShouldSkipSavingLyric(lyric_str))
+        {
+            song_info_ori.SetNoOnlineLyric(true);
+            CSongDataManager::GetInstance().AddItem(song_info_ori);
+            pInfo->list_ctrl->SetItemText(i, 4, theApp.m_str_table.LoadText(L"TXT_LYRIC_BDL_STATUS_SONG_NO_LYRIC").c_str());
+            continue;
+        }
 
         //保存歌词
         bool char_cannot_convert;

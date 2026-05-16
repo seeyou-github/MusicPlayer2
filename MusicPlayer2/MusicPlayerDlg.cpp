@@ -4861,6 +4861,12 @@ UINT CMusicPlayerDlg::DownloadLyricAndCoverThreadFunc(LPVOID lpParam)
             return 0;
         }
         CLyricDownloadCommon::AddLyricTag(lyric_str, match_item.id, match_item.title, match_item.artist, match_item.album);
+        if (CLyricDownloadCommon::ShouldSkipSavingLyric(lyric_str))
+        {
+            song_info_ori.SetNoOnlineLyric(true);
+            CSongDataManager::GetInstance().AddItem(song_info_ori);
+            return 0;
+        }
         //保存歌词
         CFilePathHelper lyric_path;
         wstring file_name;
