@@ -182,8 +182,12 @@ void UiElement::AbstractListElement::DrawScrollArea()
                     CRect rect_cell{ rect_item };
                     rect_cell.left = col_x;
                     rect_cell.right = rect_cell.left + GetColumnWidth(j, total_width);
+                    const int next_col_x = rect_cell.right;
                     std::wstring display_name{ GetItemText(i, j) };
                     rect_cell.left += ui->DPI(4);       //绘制文字时左侧留出4个像素
+                    const bool right_align_text = IsSongList() && j == GetColumnCount() - 1;
+                    if (right_align_text)
+                        rect_cell.right -= ui->DPI(8);
 
                     //第1列缩进
                     if (j == 0)
@@ -248,9 +252,9 @@ void UiElement::AbstractListElement::DrawScrollArea()
                         if (!IsMultipleSelected() && i == GetItemSelected() && j == GetColumnScrollTextWhenSelected())
                             ui->GetDrawer().DrawScrollText(rect_text, display_name.c_str(), text_color, ui->GetScrollTextPixel(), false, selected_item_scroll_info, false, true);
                         else
-                            ui->GetDrawer().DrawWindowText(rect_text, display_name.c_str(), text_color, Alignment::LEFT, true);
+                            ui->GetDrawer().DrawWindowText(rect_text, display_name.c_str(), text_color, right_align_text ? Alignment::RIGHT : Alignment::LEFT, true);
                     }
-                    col_x = rect_cell.right;
+                    col_x = next_col_x;
                 }
             }
             displayed_row_index++;
