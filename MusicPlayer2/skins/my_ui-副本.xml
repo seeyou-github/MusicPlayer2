@@ -1,5 +1,5 @@
 <root xmlns="https://github.com/zhongyang219/MusicPlayer2/skin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://github.com/zhongyang219/MusicPlayer2/skin ./skin.xsd"
-      index="13" name="my_ui">
+      index="13" name="my_ui-备份">
 
   <!--左侧导航面板-->
   <panel id="navigation_panel" width="180" margin-left="0">
@@ -9,12 +9,15 @@
         <placeHolder/>
       </horizontalLayout>
       <navigationBar orientation="vertical" icon_type="icon_and_text" item_space="4" item_left_space="2" item_height="36" stack_element_id="ui_big_navigation_stack_emelemt">
- 
+        <!--<navigationItem icon="playInPlaylist" text="%(UI_TXT_PLAY_QUEUE)"/>-->
+        <!--<navigationItem icon="folder" text="%(TXT_FOLDER)"/>-->
         <navigationItem icon="playlist" text="%(TXT_MYPLAYERLIST)"/>
         <navigationItem icon="favoriteOn" text="%(TXT_MY_FAVOURITE)"/>
- 
+        <!--<navigationItem icon="playlist" text="%(TXT_PLAYLIST)"/>-->
+        <!--<navigationItem icon="history" text="%(TXT_RECENT_PLAYED)"/>-->
+        <!--<navigationItem icon="mediaLib" text="%(TXT_MEDIA_LIB)"/>-->
       </navigationBar>
- 
+      <!--<button key="settings" show_text="true" height="36"/>-->
     </verticalLayout>
   </panel>
   
@@ -25,10 +28,34 @@
       <verticalLayout>
         <horizontalLayout>
           <!--左侧导航栏-->
-          
+          <rectangle width="44" no_corner_radius="true" theme_color="false">
+            <verticalLayout width="36" margin="4">
+              <button key="showPanel" icon="menu" text="%(UI_TXT_OPEN_NAVIGATION)" panel_id="navigation_panel" width="36" height="36" margin-bottom="4"/>
+              <navigationBar orientation="vertical" icon_type="icon_only" item_space="4" item_height="36" stack_element_id="ui_big_navigation_stack_emelemt">
+                <!--<navigationItem icon="playInPlaylist" text="%(UI_TXT_PLAY_QUEUE)"/>-->
+                <!--<navigationItem icon="folder" text="%(TXT_FOLDER)"/>-->
+                <navigationItem icon="playlist" text="%(TXT_MYPLAYERLIST)"/>
+				<navigationItem icon="favoriteOn" text="%(TXT_MY_FAVOURITE)"/>
+                <!--<navigationItem icon="playlist" text="%(TXT_PLAYLIST)"/>-->
+                <!--<navigationItem icon="history" text="%(TXT_RECENT_PLAYED)"/>-->
+                <!--<navigationItem icon="mediaLib" text="%(TXT_MEDIA_LIB)"/>-->
+              </navigationBar>
+              <!--<button key="settings" width="36" height="36"/>-->
+            </verticalLayout>
+          </rectangle>
           <stackElement id="ui_big_navigation_stack_emelemt">
             <!--播放队列-->
-  
+ 
+            <!--文件夹
+            <verticalLayout margin="8">
+              <horizontalLayout height="28" margin-bottom="4">
+                <button key="openFolder" height="28" show_text="true" proportion="10"/>
+                <button key="medialibFolderSort" height="28" show_text="true" proportion="10"/>
+                <placeHolder proportion="1"/>
+                <searchBox height="26" max-width="200" proportion="10"/>
+              </horizontalLayout>
+              <mediaLibFolder/>
+            </verticalLayout>-->
 			
             <verticalLayout margin="0">
               <myPlayerList item_height="40" show_favourite_tab="true" tab_margin_top="0" tab_margin_left="0" tab_margin_right="0" tab_height="36" tab_padding="18"
@@ -45,7 +72,11 @@
               </horizontalLayout>
               <myFavouriteList item_height="30"/>
             </verticalLayout>
-            
+            <!--播放列表-->
+ 
+            <!--最近播放-->
+ 
+            <!--媒体库-->
       
 		  </stackElement>
         </horizontalLayout>
@@ -59,10 +90,11 @@
               <!--显示为专辑封面的界面切换器，点击后进入播放详情页-->
               <elementSwitcher style="album_cover" width="72"  stack_element_id="ui_big_main_stack_element" stack_element_index="1"/>
               <!--这里用element元素包裹一个verticalLayout和一个placeHolder的作用是，-->
-               
+              <!--verticalLayout设置了hide-width，当宽度小于一定值隐藏时，这里还有一个placeHolder，确保左侧的专辑封面左对齐，右侧的按钮右对齐-->
               <element>
                 <verticalLayout margin-left="4" hide-width="32">
-                  
+                  <!--<text type="title" style="scroll" height="24" font_size="10"/>-->
+                      <!--<text type="artist" style="scroll" height="24"/>-->
                   <bottomLyrics margin-left="14" height="54" max-width="560" font_size="20" single_line="true"/>
                 </verticalLayout>
                 <placeHolder/>
@@ -76,16 +108,23 @@
                   <button key="next" bigIcon="true" icon_size="30" width="46" height="46"/>
                   <button key="favorite" icon_size="24" margin="4" width="28" height="28" margin-left="18"/>
             </horizontalLayout>
-             
+            <!--<horizontalLayout margin-right="8">
+              <placeHolder/>
+              <text type="play_time_and_volume" width="80" alignment="right" margin-right="4" height="28" hide-width="140"/>
+              <volume show_text="false" width="28" height="28" hide-width="160"/>
+              <button key="mediaLib" width="28" height="28"/>
+              <button key="showPlayQueue" width="28" height="28"/>
+            </horizontalLayout>-->
 			
 			 <horizontalLayout margin-right="8">
                   <placeHolder/>
-                  
+                  <!--<text type="play_time_and_volume" width="80" alignment="right" margin-right="4" height="28"/>-->
                   <button key="desktopLyric" bigIcon="true" icon_size="14" width="28" height="28"/>
                   <volume show_text="false" margin-left="8" icon_size="24" width="28" height="28"/>
-                   
+                   <!--<button key="mediaLib" width="28" height="28"/>-->
+                   <!--<button key="showPlayQueue" width="28" height="28"/>-->
                   <button key="info" margin-left="8" icon_size="24" width="28" height="28"/>
-                    
+                   <!--<button key="equalizer" width="28" height="28"/>-->
             </horizontalLayout>
 				
           </horizontalLayout>
@@ -120,7 +159,8 @@
                   <!--verticalLayout设置了hide-width，当宽度小于一定值隐藏时，这里还有一个placeHolder，确保左侧的专辑封面左对齐，右侧的按钮右对齐-->
                   <element>
                     <verticalLayout margin-left="4" hide-width="32">
-                     
+                      <!--<text type="title" style="scroll" height="24" font_size="10"/>-->
+                      <!--<text type="artist" style="scroll" height="24"/>-->
                     </verticalLayout>
                     <placeHolder/>
                   </element>
@@ -135,18 +175,31 @@
                 </horizontalLayout>
                 <horizontalLayout margin-right="8">
                   <placeHolder/>
-                  
+                  <!--<text type="play_time_and_volume" width="80" alignment="right" margin-right="4" height="28"/>-->
 				  <button key="desktopLyric" bigIcon="true" icon_size="14" width="28" height="28"/>
                   <volume show_text="false" margin-left="8" icon_size="24" width="28" height="28"/>
-                    
+                   <!--<button key="mediaLib" width="28" height="28"/>-->
+                   <!--<button key="showPlayQueue" width="28" height="28"/>-->
                   <button key="info" margin-left="8"  icon_size="24" width="28" height="28"/>
-                   
+                   <!--<button key="equalizer" width="28" height="28"/>-->
                 </horizontalLayout>
               </horizontalLayout>
             </rectangle>
           </verticalLayout>
           <!--窄布局-->
- 
+          <verticalLayout>
+            <albumCover show_info="true"/>
+            <progressBar show_play_time="false" height="10" bar_height="10"/>
+            <horizontalLayout height="72">
+              <button key="repeatMode" icon_size="24" margin="4" width="28" height="28"/>
+              <button key="favorite" icon_size="24" margin="4" width="28" height="28"/>
+              <button key="previous" bigIcon="true" icon_size="30" width="36" height="36"/>
+              <button key="playPause" bigIcon="true" icon_size="30" width="36" height="36"/>
+              <button key="next" bigIcon="true" icon_size="30" width="36" height="36"/>
+              <button key="mediaLib" icon_size="24" margin="4" width="28" height="28"/>
+              <button key="showPlayQueue" icon_size="24" margin="4" width="28" height="28"/>
+            </horizontalLayout>
+          </verticalLayout>
         </stackElement>
         <!--固定在左上角的界面切换器，点击后返回主界面-->
         <elementSwitcher x="4" y="4" width="32" height="32" style="button" text="%(UI_TIP_BTN_BACK)" icon="dropDown" stack_element_id="ui_big_main_stack_element" stack_element_index="0"/>
