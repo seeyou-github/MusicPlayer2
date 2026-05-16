@@ -168,21 +168,21 @@ enum RecentPlayedRange
 
 struct DesktopLyricSettingData      //桌面歌词设置
 {
-    bool lyric_double_line{ false };
+    bool lyric_double_line{ true };
     FontInfo lyric_font;
-    COLORREF text_color1{};
-    COLORREF text_color2{};
-    int text_gradient{};
-    COLORREF highlight_color1{};
-    COLORREF highlight_color2{};
-    int highlight_gradient{};
+    COLORREF text_color1{ 4533033 };
+    COLORREF text_color2{ 12889516 };
+    int text_gradient{ 2 };
+    COLORREF highlight_color1{ 4210816 };
+    COLORREF highlight_color2{ 28123 };
+    int highlight_gradient{ 2 };
     int opacity{ 100 };
     bool lock_desktop_lyric{ true };
-    bool hide_lyric_window_without_lyric{ false };  //没有歌词时隐藏歌词窗口
-    bool hide_lyric_window_when_paused{ false };    //暂停时隐藏歌词窗口
-    bool lyric_background_penetrate{ false };
+    bool hide_lyric_window_without_lyric{ true };  //没有歌词时隐藏歌词窗口
+    bool hide_lyric_window_when_paused{ true };    //暂停时隐藏歌词窗口
+    bool lyric_background_penetrate{ true };
     bool show_unlock_when_locked{ true };           //桌面歌词锁定时显示解锁图标
-    Alignment lyric_align{ Alignment::AUTO };   //歌词的对齐方式
+    Alignment lyric_align{ Alignment::CENTER };   //歌词的对齐方式
 };
 
 struct LyricSettingData
@@ -232,7 +232,7 @@ struct LyricSettingData
 struct ApperanceSettingData
 {
     int window_transparency{ 100 };             //窗口透明度
-    ColorTable theme_color;                     //主题颜色
+    ColorTable theme_color{ 7237230 };          //主题颜色
     bool theme_color_follow_system{ true };     //主题颜色跟随系统（仅Win8以上支持）
     bool show_album_cover;                      //显示专辑封面
     CDrawCommon::StretchMode album_cover_fit{ CDrawCommon::StretchMode::FILL };     //专辑封面契合度（拉伸模式）
@@ -242,7 +242,7 @@ struct ApperanceSettingData
     int sprctrum_height{ 100 };                 //频谱分析高度比例（%）
     bool spectrum_low_freq_in_center{ false };  //频谱分析低频部分显示在中间
     bool use_old_style_specturm{ false };       //使用旧风格的频谱分析显示
-    int background_transparency{ 80 };          //背景的透明度
+    int background_transparency{ 85 };          //背景的透明度
 
     bool use_out_image{ true };                 //使用外部图片作为专辑封面
     bool use_inner_image_first{ true };         //优先使用内嵌专辑封面
@@ -251,7 +251,7 @@ struct ApperanceSettingData
     vector<wstring> default_album_name;         //默认的专辑封面文件名
 
     bool background_gauss_blur{ true };         //背景高斯模糊
-    int gauss_blur_radius{ 60 };                //高斯模糊半径*10
+    int gauss_blur_radius{ 123 };               //高斯模糊半径*10
     bool lyric_background{ true };              //歌词界面背景
     bool dark_mode{ false };                    //深色模式
 
@@ -278,21 +278,21 @@ struct ApperanceSettingData
     int song_list_font_size{ 16 };      //歌曲列表文字大小
     bool song_list_custom_text_color{ true }; //歌曲列表是否使用自定义文字颜色
     COLORREF song_list_text_color{ RGB(192, 192, 192) }; //歌曲列表文字颜色
-    bool song_list_custom_playing_text_color{ false }; //歌曲列表正在播放歌曲是否使用自定义文字颜色
-    COLORREF song_list_playing_text_color{}; //歌曲列表正在播放歌曲文字颜色
-    COLORREF bottom_lyric_played_text_color{ RGB(0, 249, 26) }; //底部播放控制栏当前歌词文字颜色
-    COLORREF bottom_lyric_unplayed_text_color{ RGB(238, 238, 238) }; //底部播放控制栏未播放歌词文字颜色
-    COLORREF bottom_lyric_next_text_color{ RGB(170, 170, 170) }; //底部播放控制栏下一句歌词文字颜色
-    COLORREF lyric_text_color{ RGB(136, 136, 136) }; //播放详情页歌词普通文字颜色
-    COLORREF lyric_playing_text_color{ RGB(71, 236, 90) }; //播放详情页歌词正在播放文字颜色
-    COLORREF my_player_list_tab_background_color{ RGB(45, 48, 55) }; //myPlayerList标签栏背景色
-    COLORREF my_player_list_tab_selected_background_color{ RGB(32, 34, 42) }; //myPlayerList选中标签背景色
-    COLORREF my_player_list_tab_unselected_background_color{ RGB(45, 48, 55) }; //myPlayerList未选中标签背景色
-    COLORREF my_player_list_tab_selected_text_color{ RGB(238, 238, 238) }; //myPlayerList选中标签文字颜色
+    bool song_list_custom_playing_text_color{ true }; //歌曲列表正在播放歌曲是否使用自定义文字颜色
+    COLORREF song_list_playing_text_color{ 4227327 }; //歌曲列表正在播放歌曲文字颜色
+    COLORREF bottom_lyric_played_text_color{ 4227327 }; //底部播放控制栏当前歌词文字颜色
+    COLORREF bottom_lyric_unplayed_text_color{ 12632256 }; //底部播放控制栏未播放歌词文字颜色
+    COLORREF bottom_lyric_next_text_color{ 12632256 }; //底部播放控制栏下一句歌词文字颜色
+    COLORREF lyric_text_color{ 11579568 }; //播放详情页歌词普通文字颜色
+    COLORREF lyric_playing_text_color{ 4227327 }; //播放详情页歌词正在播放文字颜色
+    COLORREF my_player_list_tab_background_color{ 3616813 }; //myPlayerList标签栏背景色
+    COLORREF my_player_list_tab_selected_background_color{}; //myPlayerList选中标签背景色
+    COLORREF my_player_list_tab_unselected_background_color{ 3616813 }; //myPlayerList未选中标签背景色
+    COLORREF my_player_list_tab_selected_text_color{ 15658734 }; //myPlayerList选中标签文字颜色
     COLORREF my_player_list_tab_unselected_text_color{ RGB(170, 170, 170) }; //myPlayerList未选中标签文字颜色
     COLORREF progress_back_color{ RGB(51, 51, 51) }; //进度条背景色
-    COLORREF progress_color{ RGB(119, 119, 119) }; //进度条前景色
-    COLORREF progress_time_color{ RGB(238, 238, 238) }; //进度条时间文字颜色
+    COLORREF progress_color{ 8484470 }; //进度条前景色
+    COLORREF progress_time_color{ 15658734 }; //进度条时间文字颜色
 
     bool show_window_frame{ true };     //显示标准窗口边框
     bool show_minimize_btn_in_titlebar{ true };     //是否在标题栏显示“最小化”按钮
@@ -316,7 +316,7 @@ struct GeneralSettingData
     bool auto_download_only_tag_full{ true };   //仅在歌曲信息完整时自动下载
     bool save_lyric_to_song_folder{ true };     // 将自动下载的歌词文件保存在歌曲文件夹
     bool save_album_to_song_folder{ true };     // 将自动下载的封面文件保存在歌曲文件夹
-    bool download_lyric_text_and_translation_in_same_line{ true };  //下载的歌词原文和翻译在同一行
+    bool download_lyric_text_and_translation_in_same_line{ false };  //下载的歌词原文和翻译在同一行
     bool check_update_when_start{ true };       //是否在程序启动时检查更新
     int update_source{};                        //更新源。0: GitHub; 1: Gitee
     bool minimize_to_notify_icon{ false };      //是否最小到通知区图标
@@ -343,7 +343,7 @@ struct PlaySettingData
     bool show_playstate_icon{ true };           //在任务栏按钮上显示播放状态的角标
     wstring output_device;                      //播放设备的名称
     int device_selected{};
-    bool fade_effect{ true };                   //播放淡入淡出效果
+    bool fade_effect{ false };                  //播放淡入淡出效果
     int fade_time{ 500 };                      //淡入淡出时间（毫秒）
     bool use_media_trans_control{};             //使用系统MediaTransportControls
     bool remember_last_position{ true };        //是否记住上次播放位置
@@ -374,7 +374,7 @@ struct PlaySettingData
 
 struct GlobalHotKeySettingData
 {
-    bool hot_key_enable = true;
+    bool hot_key_enable = false;
     bool global_multimedia_key_enable{ true };  //是否在全局范围内启用多媒体键
 };
 

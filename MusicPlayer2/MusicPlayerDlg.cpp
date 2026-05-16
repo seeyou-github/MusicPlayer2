@@ -611,7 +611,7 @@ void CMusicPlayerDlg::LoadConfig()
     theApp.m_lyric_setting_data.donot_show_blank_lines = ini.GetBool(L"config", L"donot_show_blank_lines", true);
     theApp.m_lyric_setting_data.show_song_info_if_lyric_not_exist = ini.GetBool(L"config", L"show_song_info_if_lyric_not_exist", false);
 
-    theApp.m_app_setting_data.theme_color.original_color = ini.GetInt(L"config", L"theme_color", 3089700);
+    theApp.m_app_setting_data.theme_color.original_color = ini.GetInt(L"config", L"theme_color", 7237230);
     theApp.m_app_setting_data.theme_color_follow_system = ini.GetBool(L"config", L"theme_color_follow_system", false);
     theApp.m_media_lib_setting_data.display_format = static_cast<DisplayFormat>(ini.GetInt(L"config", L"playlist_display_format", 2));
     theApp.m_lyric_setting_data.cortana_show_lyric = ini.GetBool(L"config", L"cortana_show_lyric", true);
@@ -647,32 +647,32 @@ void CMusicPlayerDlg::LoadConfig()
 
     theApp.m_lyric_setting_data.show_desktop_lyric = ini.GetBool(L"desktop_lyric", L"show_desktop_lyric", false);
     theApp.m_lyric_setting_data.desktop_lyric_data.lyric_font.name = ini.GetString(L"desktop_lyric", L"font_name", theApp.m_str_table.GetDefaultFontName().c_str());
-    theApp.m_lyric_setting_data.desktop_lyric_data.lyric_font.size = ini.GetInt(L"desktop_lyric", L"font_size", 30);
+    theApp.m_lyric_setting_data.desktop_lyric_data.lyric_font.size = ini.GetInt(L"desktop_lyric", L"font_size", 36);
     theApp.m_lyric_setting_data.desktop_lyric_data.lyric_font.style.FromInt(ini.GetInt(L"desktop_lyric", L"font_style", 0));
-    theApp.m_lyric_setting_data.desktop_lyric_data.text_color1 = ini.GetInt(L"desktop_lyric", L"text_color1", 694309);
-    theApp.m_lyric_setting_data.desktop_lyric_data.text_color2 = ini.GetInt(L"desktop_lyric", L"text_color2", 63873);
-    theApp.m_lyric_setting_data.desktop_lyric_data.text_gradient = ini.GetInt(L"desktop_lyric", L"text_gradient", 1);
-    theApp.m_lyric_setting_data.desktop_lyric_data.highlight_color1 = ini.GetInt(L"desktop_lyric", L"highlight_color1", 59645);
-    theApp.m_lyric_setting_data.desktop_lyric_data.highlight_color2 = ini.GetInt(L"desktop_lyric", L"highlight_color2", 30975);
+    theApp.m_lyric_setting_data.desktop_lyric_data.text_color1 = ini.GetInt(L"desktop_lyric", L"text_color1", 4533033);
+    theApp.m_lyric_setting_data.desktop_lyric_data.text_color2 = ini.GetInt(L"desktop_lyric", L"text_color2", 12889516);
+    theApp.m_lyric_setting_data.desktop_lyric_data.text_gradient = ini.GetInt(L"desktop_lyric", L"text_gradient", 2);
+    theApp.m_lyric_setting_data.desktop_lyric_data.highlight_color1 = ini.GetInt(L"desktop_lyric", L"highlight_color1", 4210816);
+    theApp.m_lyric_setting_data.desktop_lyric_data.highlight_color2 = ini.GetInt(L"desktop_lyric", L"highlight_color2", 28123);
     theApp.m_lyric_setting_data.desktop_lyric_data.highlight_gradient = ini.GetInt(L"desktop_lyric", L"highlight_gradient", 2);
     theApp.m_lyric_setting_data.desktop_lyric_data.lock_desktop_lyric = ini.GetBool(L"desktop_lyric", L"lock_desktop_lyric", true);
-    theApp.m_lyric_setting_data.desktop_lyric_data.lyric_double_line = ini.GetBool(L"desktop_lyric", L"lyric_double_line", false);
-    theApp.m_lyric_setting_data.desktop_lyric_data.hide_lyric_window_without_lyric = ini.GetBool(L"desktop_lyric", L"hide_lyric_window_without_lyric", false);
-    theApp.m_lyric_setting_data.desktop_lyric_data.hide_lyric_window_when_paused = ini.GetBool(L"desktop_lyric", L"hide_lyric_window_when_paused", false);
-    theApp.m_lyric_setting_data.desktop_lyric_data.lyric_background_penetrate = ini.GetBool(L"desktop_lyric", L"lyric_background_penetrate", false);
+    theApp.m_lyric_setting_data.desktop_lyric_data.lyric_double_line = ini.GetBool(L"desktop_lyric", L"lyric_double_line", true);
+    theApp.m_lyric_setting_data.desktop_lyric_data.hide_lyric_window_without_lyric = ini.GetBool(L"desktop_lyric", L"hide_lyric_window_without_lyric", true);
+    theApp.m_lyric_setting_data.desktop_lyric_data.hide_lyric_window_when_paused = ini.GetBool(L"desktop_lyric", L"hide_lyric_window_when_paused", true);
+    theApp.m_lyric_setting_data.desktop_lyric_data.lyric_background_penetrate = ini.GetBool(L"desktop_lyric", L"lyric_background_penetrate", true);
     theApp.m_lyric_setting_data.desktop_lyric_data.opacity = ini.GetInt(L"desktop_lyric", L"opacity", 100);
     theApp.m_lyric_setting_data.desktop_lyric_data.show_unlock_when_locked = ini.GetBool(L"desktop_lyric", L"show_unlock_when_locked", true);
-    theApp.m_lyric_setting_data.desktop_lyric_data.lyric_align = static_cast<Alignment>(ini.GetInt(L"desktop_lyric", L"lyric_align", 2));
+    theApp.m_lyric_setting_data.desktop_lyric_data.lyric_align = static_cast<Alignment>(ini.GetInt(L"desktop_lyric", L"lyric_align", 3));
     m_desktop_lyric_pos.x = ini.GetInt(L"desktop_lyric", L"position_x", 304);
     m_desktop_lyric_pos.y = ini.GetInt(L"desktop_lyric", L"position_y", 895);
     m_desktop_lyric_size.cx = ini.GetInt(L"desktop_lyric", L"width", 1218);
     m_desktop_lyric_size.cy = ini.GetInt(L"desktop_lyric", L"height", 185);
 
     theApp.m_app_setting_data.background_gauss_blur = ini.GetBool(L"config", L"background_gauss_blur", true);
-    theApp.m_app_setting_data.gauss_blur_radius = ini.GetInt(L"config", L"gauss_blur_radius", 160);
+    theApp.m_app_setting_data.gauss_blur_radius = ini.GetInt(L"config", L"gauss_blur_radius", 123);
     theApp.m_app_setting_data.lyric_background = ini.GetBool(L"config", L"lyric_background", false);
     theApp.m_app_setting_data.dark_mode = ini.GetBool(L"config", L"dark_mode", true);
-    theApp.m_app_setting_data.background_transparency = ini.GetInt(L"config", L"background_transparency", 80);
+    theApp.m_app_setting_data.background_transparency = ini.GetInt(L"config", L"background_transparency", 85);
     theApp.m_app_setting_data.use_out_image = ini.GetBool(L"config", L"use_out_image", true);
     theApp.m_app_setting_data.use_inner_image_first = ini.GetBool(L"config", L"use_inner_image_first", true);
     theApp.m_app_setting_data.draw_album_high_quality = ini.GetBool(L"config", L"draw_album_high_quality", false);
@@ -729,7 +729,7 @@ void CMusicPlayerDlg::LoadConfig()
     theApp.m_general_setting_data.auto_download_only_tag_full = ini.GetBool(L"general", L"auto_download_only_tag_full", 1);
     theApp.m_general_setting_data.save_lyric_to_song_folder = ini.GetBool(L"general", L"save_lyric_to_song_folder", false);
     theApp.m_general_setting_data.save_album_to_song_folder = ini.GetBool(L"general", L"save_album_to_song_folder", false);
-    theApp.m_general_setting_data.download_lyric_text_and_translation_in_same_line = ini.GetBool(L"general", L"download_lyric_text_and_translation_in_same_line", true);
+    theApp.m_general_setting_data.download_lyric_text_and_translation_in_same_line = ini.GetBool(L"general", L"download_lyric_text_and_translation_in_same_line", false);
     theApp.m_play_setting_data.sf2_path = ini.GetString(L"general", L"sf2_path", L"");
     theApp.m_play_setting_data.midi_use_inner_lyric = ini.GetBool(L"general", L"midi_use_inner_lyric", 0);
     theApp.m_general_setting_data.minimize_to_notify_icon = ini.GetBool(L"general", L"minimize_to_notify_icon", false);
@@ -742,7 +742,7 @@ void CMusicPlayerDlg::LoadConfig()
     theApp.m_play_setting_data.continue_when_switch_playlist = ini.GetBool(L"config", L"continue_when_switch_playlist", false);
     theApp.m_play_setting_data.show_taskbar_progress = ini.GetBool(L"config", L"show_taskbar_progress", false);
     theApp.m_play_setting_data.show_playstate_icon = ini.GetBool(L"config", L"show_playstate_icon", false);
-    theApp.m_play_setting_data.fade_effect = ini.GetBool(L"config", L"fade_effect", true);
+    theApp.m_play_setting_data.fade_effect = ini.GetBool(L"config", L"fade_effect", false);
     theApp.m_play_setting_data.fade_time = ini.GetInt(L"config", L"fade_time", 500);
     if (theApp.m_play_setting_data.fade_time < 0)
         theApp.m_play_setting_data.fade_time = 0;
@@ -794,7 +794,7 @@ void CMusicPlayerDlg::LoadConfig()
     CRecentList::Instance().SetSortMode(LT_MEDIA_LIB, CRecentList::listSortMode::SM_RECENT_PLAYED);
 
     //载入热键设置
-    theApp.m_hot_key_setting_data.hot_key_enable = ini.GetBool(L"hot_key", L"hot_key_enable", true);
+    theApp.m_hot_key_setting_data.hot_key_enable = ini.GetBool(L"hot_key", L"hot_key_enable", false);
     m_hot_key.LoadFromIni(ini);
 
     //载入桌面歌词预设方案
@@ -856,21 +856,21 @@ void CMusicPlayerDlg::LoadConfig()
     CCommon::SetNumRange(theApp.m_app_setting_data.song_list_font_size, 15, 30);
     theApp.m_app_setting_data.song_list_custom_text_color = ini.GetBool(L"config", L"song_list_custom_text_color", true);
     theApp.m_app_setting_data.song_list_text_color = ini.GetInt(L"config", L"song_list_text_color", RGB(192, 192, 192));
-    theApp.m_app_setting_data.song_list_custom_playing_text_color = ini.GetBool(L"config", L"song_list_custom_playing_text_color", false);
-    theApp.m_app_setting_data.song_list_playing_text_color = ini.GetInt(L"config", L"song_list_playing_text_color", 0);
-    theApp.m_app_setting_data.bottom_lyric_played_text_color = ini.GetInt(L"config", L"bottom_lyric_played_text_color", RGB(0, 249, 26));
-    theApp.m_app_setting_data.bottom_lyric_unplayed_text_color = ini.GetInt(L"config", L"bottom_lyric_unplayed_text_color", RGB(238, 238, 238));
-    theApp.m_app_setting_data.bottom_lyric_next_text_color = ini.GetInt(L"config", L"bottom_lyric_next_text_color", RGB(170, 170, 170));
-    theApp.m_app_setting_data.lyric_text_color = ini.GetInt(L"config", L"lyric_text_color", RGB(136, 136, 136));
-    theApp.m_app_setting_data.lyric_playing_text_color = ini.GetInt(L"config", L"lyric_playing_text_color", RGB(71, 236, 90));
-    theApp.m_app_setting_data.my_player_list_tab_background_color = ini.GetInt(L"config", L"my_player_list_tab_background_color", RGB(45, 48, 55));
-    theApp.m_app_setting_data.my_player_list_tab_selected_background_color = ini.GetInt(L"config", L"my_player_list_tab_selected_background_color", RGB(32, 34, 42));
-    theApp.m_app_setting_data.my_player_list_tab_unselected_background_color = ini.GetInt(L"config", L"my_player_list_tab_unselected_background_color", RGB(45, 48, 55));
-    theApp.m_app_setting_data.my_player_list_tab_selected_text_color = ini.GetInt(L"config", L"my_player_list_tab_selected_text_color", RGB(238, 238, 238));
+    theApp.m_app_setting_data.song_list_custom_playing_text_color = ini.GetBool(L"config", L"song_list_custom_playing_text_color", true);
+    theApp.m_app_setting_data.song_list_playing_text_color = ini.GetInt(L"config", L"song_list_playing_text_color", 4227327);
+    theApp.m_app_setting_data.bottom_lyric_played_text_color = ini.GetInt(L"config", L"bottom_lyric_played_text_color", 4227327);
+    theApp.m_app_setting_data.bottom_lyric_unplayed_text_color = ini.GetInt(L"config", L"bottom_lyric_unplayed_text_color", 12632256);
+    theApp.m_app_setting_data.bottom_lyric_next_text_color = ini.GetInt(L"config", L"bottom_lyric_next_text_color", 12632256);
+    theApp.m_app_setting_data.lyric_text_color = ini.GetInt(L"config", L"lyric_text_color", 11579568);
+    theApp.m_app_setting_data.lyric_playing_text_color = ini.GetInt(L"config", L"lyric_playing_text_color", 4227327);
+    theApp.m_app_setting_data.my_player_list_tab_background_color = ini.GetInt(L"config", L"my_player_list_tab_background_color", 3616813);
+    theApp.m_app_setting_data.my_player_list_tab_selected_background_color = ini.GetInt(L"config", L"my_player_list_tab_selected_background_color", 0);
+    theApp.m_app_setting_data.my_player_list_tab_unselected_background_color = ini.GetInt(L"config", L"my_player_list_tab_unselected_background_color", 3616813);
+    theApp.m_app_setting_data.my_player_list_tab_selected_text_color = ini.GetInt(L"config", L"my_player_list_tab_selected_text_color", 15658734);
     theApp.m_app_setting_data.my_player_list_tab_unselected_text_color = ini.GetInt(L"config", L"my_player_list_tab_unselected_text_color", RGB(170, 170, 170));
     theApp.m_app_setting_data.progress_back_color = ini.GetInt(L"config", L"progress_back_color", RGB(51, 51, 51));
-    theApp.m_app_setting_data.progress_color = ini.GetInt(L"config", L"progress_color", RGB(119, 119, 119));
-    theApp.m_app_setting_data.progress_time_color = ini.GetInt(L"config", L"progress_time_color", RGB(238, 238, 238));
+    theApp.m_app_setting_data.progress_color = ini.GetInt(L"config", L"progress_color", 8484470);
+    theApp.m_app_setting_data.progress_time_color = ini.GetInt(L"config", L"progress_time_color", 15658734);
     theApp.m_media_lib_setting_data.merge_song_different_versions = ini.GetBool(L"media_lib", L"merge_song_different_versions", false);
     theApp.m_media_lib_setting_data.recent_played_range = static_cast<RecentPlayedRange>(ini.GetInt(L"media_lib", L"recent_played_range", 0));
     theApp.m_media_lib_setting_data.display_item = ini.GetInt(L"media_lib", L"display_item", 131);

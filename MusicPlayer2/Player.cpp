@@ -1623,7 +1623,7 @@ void CPlayer::LoadConfig()
     m_repeat_mode = static_cast<RepeatMode>(ini.GetInt(L"config", L"repeat_mode", 0));
     theApp.m_lyric_setting_data.lyric_path = L"AppData\\cache\\lyrices\\";
     theApp.m_lyric_setting_data.lyric_karaoke_disp = ini.GetBool(L"config", L"lyric_karaoke_disp", true);
-    m_sort_mode = static_cast<SortMode>(ini.GetInt(L"config", L"sort_mode", 100));
+    m_sort_mode = static_cast<SortMode>(ini.GetInt(L"config", L"sort_mode", 0));
     theApp.m_lyric_setting_data.lyric_fuzzy_match = ini.GetBool(L"config", L"lyric_fuzzy_match", true);
     theApp.m_app_setting_data.default_album_name = { L"cover" };
 
