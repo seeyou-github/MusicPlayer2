@@ -107,6 +107,8 @@ bool UiElement::MyPlayerList::RButtonUp(CPoint point)
     bool rtn{};
     if (!IsFavouriteTabSelected() && rect.PtInRect(point))
     {
+        if (!scrollbar_rect.PtInRect(point))
+            TrackList::RButtonDown(point);
         mouse_pressed = false;
         CMenu* menu{ GetContextMenu(GetItemSelected() >= 0 && !scrollbar_rect.PtInRect(point)) };
         if (menu != nullptr)
@@ -136,12 +138,17 @@ bool UiElement::MyPlayerList::RButtonUp(CPoint point)
                 if (target_tabs.empty())
                     sub_menu.AppendMenuW(MF_STRING | MF_GRAYED, MOVE_TO_FOLDER_TAB_COMMAND_BASE, L"-");
 
-                menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu.GetSafeHmenu()), theApp.m_str_table.LoadText(L"TXT_MOVE_FILE_TO").c_str());
+                CString original_text;
+                menu->GetMenuString(move_menu_pos, original_text, MF_BYPOSITION);
+                HMENU sub_menu_handle = sub_menu.Detach();
+                menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu_handle), theApp.m_str_table.LoadText(L"TXT_MOVE_FILE_TO").c_str());
 
                 CPoint cursor_pos;
                 GetCursorPos(&cursor_pos);
                 CWnd* cmd_reciver = GetCmdRecivedWnd();
                 UINT command = menu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY, cursor_pos.x, cursor_pos.y, cmd_reciver != nullptr ? cmd_reciver : theApp.m_pMainWnd);
+                menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_STRING, ID_MOVE_FILE_TO, original_text);
+                ::DestroyMenu(sub_menu_handle);
                 if (command >= MOVE_TO_FOLDER_TAB_COMMAND_BASE && command < MOVE_TO_FOLDER_TAB_COMMAND_BASE + target_tabs.size())
                 {
                     MoveFilesToFolderTab(target_tabs[command - MOVE_TO_FOLDER_TAB_COMMAND_BASE]);

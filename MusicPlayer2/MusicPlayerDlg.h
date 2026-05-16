@@ -32,6 +32,7 @@
 #include "ListCache.h"
 
 #define WM_ALBUM_COVER_DOWNLOAD_COMPLETE (WM_USER+114)      //自动下载专辑封面和歌词完成时发出的消息
+#define WM_AUTO_DOWNLOAD_WRITE_AUDIO_FILE_FAILED (WM_USER+115)      //自动下载写入音频标签失败时发出的消息
 
 // CMusicPlayerDlg 对话框
 class CMusicPlayerDlg : public CMainDialogBase
@@ -427,6 +428,7 @@ public:
 protected:
     afx_msg LRESULT OnSettingsApplied(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnAlbumCoverDownloadComplete(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnAutoDownloadWriteAudioFileFailed(WPARAM wParam, LPARAM lParam);
 public:
     afx_msg void OnColorizationColorChanged(DWORD dwColorizationColor, BOOL bOpacity);
     afx_msg void OnSupportedFormat();

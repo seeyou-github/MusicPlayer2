@@ -46,6 +46,12 @@
 
 namespace
 {
+    enum class AutoDownloadWriteFailType : WPARAM
+    {
+        Cover = 1,
+        Lyric = 2,
+    };
+
     bool DownloadUrlToMemory(const wstring& url, vector<unsigned char>& data)
     {
         data.clear();
@@ -281,6 +287,7 @@ BEGIN_MESSAGE_MAP(CMusicPlayerDlg, CMainDialogBase)
     //ON_MESSAGE(WM_OPEN_FILE_COMMAND_LINE, &CMusicPlayerDlg::OnOpenFileCommandLine)
     ON_MESSAGE(WM_SETTINGS_APPLIED, &CMusicPlayerDlg::OnSettingsApplied)
     ON_MESSAGE(WM_ALBUM_COVER_DOWNLOAD_COMPLETE, &CMusicPlayerDlg::OnAlbumCoverDownloadComplete)
+    ON_MESSAGE(WM_AUTO_DOWNLOAD_WRITE_AUDIO_FILE_FAILED, &CMusicPlayerDlg::OnAutoDownloadWriteAudioFileFailed)
     ON_WM_DWMCOLORIZATIONCOLORCHANGED()
     ON_COMMAND(ID_SUPPORTED_FORMAT, &CMusicPlayerDlg::OnSupportedFormat)
     ON_COMMAND(ID_SWITCH_UI, &CMusicPlayerDlg::OnSwitchUi)
@@ -4869,7 +4876,7 @@ UINT CMusicPlayerDlg::DownloadLyricAndCoverThreadFunc(LPVOID lpParam)
                 }
                 else
                 {
-                    pThis->MessageBox(theApp.m_str_table.LoadText(L"MSG_COVER_DL_SAVE_TO_AUDIO_FILE_FAILED").c_str(), NULL, MB_ICONWARNING | MB_OK);
+                    ::PostMessage(pThis->GetSafeHwnd(), WM_AUTO_DOWNLOAD_WRITE_AUDIO_FILE_FAILED, static_cast<WPARAM>(AutoDownloadWriteFailType::Cover), 0);
                 }
             }
         }
@@ -4945,7 +4952,7 @@ UINT CMusicPlayerDlg::DownloadLyricAndCoverThreadFunc(LPVOID lpParam)
                 CPlayer::GetInstance().IniLyrics();
                 return 0;
             }
-            pThis->MessageBox(theApp.m_str_table.LoadText(L"MSG_LYRIC_DL_SAVE_TO_AUDIO_FILE_FAILED").c_str(), NULL, MB_ICONWARNING | MB_OK);
+            ::PostMessage(pThis->GetSafeHwnd(), WM_AUTO_DOWNLOAD_WRITE_AUDIO_FILE_FAILED, static_cast<WPARAM>(AutoDownloadWriteFailType::Lyric), 0);
         }
         //保存歌词
         CFilePathHelper lyric_path;
@@ -5408,6 +5415,18 @@ afx_msg LRESULT CMusicPlayerDlg::OnAlbumCoverDownloadComplete(WPARAM wParam, LPA
     //由于此函数放到线程中处理时，拉伸图片的处理CDrawCommon::BitmapStretch有一定的概率出错，原因未知
     //导致专辑封面背景是黑色的，因此通过发送消息放到主线程中处理
     CPlayer::GetInstance().AlbumCoverGaussBlur();
+
+    return 0;
+}
+
+
+afx_msg LRESULT CMusicPlayerDlg::OnAutoDownloadWriteAudioFileFailed(WPARAM wParam, LPARAM lParam)
+{
+    const auto fail_type = static_cast<AutoDownloadWriteFailType>(wParam);
+    if (fail_type == AutoDownloadWriteFailType::Cover)
+        MessageBox(theApp.m_str_table.LoadText(L"MSG_COVER_DL_SAVE_TO_AUDIO_FILE_FAILED").c_str(), NULL, MB_ICONWARNING | MB_OK);
+    else if (fail_type == AutoDownloadWriteFailType::Lyric)
+        MessageBox(theApp.m_str_table.LoadText(L"MSG_LYRIC_DL_SAVE_TO_AUDIO_FILE_FAILED").c_str(), NULL, MB_ICONWARNING | MB_OK);
 
     return 0;
 }
