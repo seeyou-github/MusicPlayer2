@@ -172,6 +172,7 @@ protected:
 
     bool m_theme_color_changed{ false };
     bool m_playlist_controls_initialized{ false };
+    bool m_locate_current_after_manual_track_switch{ false };
     std::atomic<int> m_ui_refresh_interval{};    //界面实际刷新时间（毫秒）
 
     CDevicesManager* devicesManager;

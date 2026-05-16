@@ -3208,8 +3208,10 @@ void CMusicPlayerDlg::OnStop()
 void CMusicPlayerDlg::OnPrevious()
 {
     // TODO: 在此添加命令处理程序代码
+    m_locate_current_after_manual_track_switch = true;
     if (!CPlayer::GetInstance().PlayTrack(PREVIOUS))
     {
+        m_locate_current_after_manual_track_switch = false;
         const wstring& info = theApp.m_str_table.LoadText(L"MSG_WAIT_AND_RETRY");
         MessageBox(info.c_str(), NULL, MB_ICONINFORMATION | MB_OK);
     }
@@ -3219,8 +3221,10 @@ void CMusicPlayerDlg::OnPrevious()
 void CMusicPlayerDlg::OnNext()
 {
     // TODO: 在此添加命令处理程序代码
+    m_locate_current_after_manual_track_switch = true;
     if (!CPlayer::GetInstance().PlayTrack(NEXT))
     {
+        m_locate_current_after_manual_track_switch = false;
         const wstring& info = theApp.m_str_table.LoadText(L"MSG_WAIT_AND_RETRY");
         MessageBox(info.c_str(), NULL, MB_ICONINFORMATION | MB_OK);
     }
@@ -4706,6 +4710,11 @@ afx_msg LRESULT CMusicPlayerDlg::OnAfterSetTrack(WPARAM wParam, LPARAM lParam)
     m_notify_icon.SetIconToolTip(title.c_str());
 
     SwitchTrack();
+    if (m_locate_current_after_manual_track_switch)
+    {
+        m_locate_current_after_manual_track_switch = false;
+        OnLocateToCurrent();
+    }
     UpdatePlayPauseButton();
 
     return 0;
