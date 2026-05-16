@@ -60,6 +60,7 @@ namespace UiElement
         void RenameFolder(int index);
         void DeleteFolder(int index);
         void RefreshFolder(int index);
+        void MoveFilesToFolderTab(int target_tab_index);
         void SaveFolderTabSettings();
         ListItem GetFolderListItem(int index) const;
         void SetFolderSongs(int index, bool force_refresh = false);

@@ -11,10 +11,13 @@
 #include "Player.h"
 #include "CRecentList.h"
 #include "MusicPlayerCmdHelper.h"
+#include "CommonDialogMgr.h"
+#include "COSUPlayerHelper.h"
 
 namespace
 {
     constexpr UINT TAB_MENU_COMMAND_BASE{ 0xE000 };
+    constexpr UINT MOVE_TO_FOLDER_TAB_COMMAND_BASE{ 0xE100 };
     constexpr int NO_TAB_INDEX{ -1 };
     constexpr int FAVOURITE_TAB_INDEX{ -2 };
     constexpr COLORREF FAVOURITE_TAB_HEART_COLOR{ RGB(220, 48, 72) };
@@ -101,7 +104,70 @@ bool UiElement::MyPlayerList::RButtonUp(CPoint point)
     }
     CRect old_rect{ rect };
     SetRect(GetListRect());
-    bool rtn = TrackList::RButtonUp(point);
+    bool rtn{};
+    if (!IsFavouriteTabSelected() && rect.PtInRect(point))
+    {
+        mouse_pressed = false;
+        CMenu* menu{ GetContextMenu(GetItemSelected() >= 0 && !scrollbar_rect.PtInRect(point)) };
+        if (menu != nullptr)
+        {
+            int move_menu_pos = -1;
+            const int menu_count = menu->GetMenuItemCount();
+            for (int i{}; i < menu_count; ++i)
+            {
+                if (menu->GetMenuItemID(i) == ID_MOVE_FILE_TO)
+                {
+                    move_menu_pos = i;
+                    break;
+                }
+            }
+            if (move_menu_pos >= 0)
+            {
+                CMenu sub_menu;
+                sub_menu.CreatePopupMenu();
+                vector<int> target_tabs;
+                for (int i{}; i < static_cast<int>(folders.size()); ++i)
+                {
+                    if (i == m_selected_tab || !IsFolderTab(i))
+                        continue;
+                    target_tabs.push_back(i);
+                    sub_menu.AppendMenuW(MF_STRING, MOVE_TO_FOLDER_TAB_COMMAND_BASE + static_cast<UINT>(target_tabs.size() - 1), GetFolderTabName(i).c_str());
+                }
+                if (target_tabs.empty())
+                    sub_menu.AppendMenuW(MF_STRING | MF_GRAYED, MOVE_TO_FOLDER_TAB_COMMAND_BASE, L"-");
+
+                menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu.GetSafeHmenu()), theApp.m_str_table.LoadText(L"TXT_MOVE_FILE_TO").c_str());
+
+                CPoint cursor_pos;
+                GetCursorPos(&cursor_pos);
+                CWnd* cmd_reciver = GetCmdRecivedWnd();
+                UINT command = menu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY, cursor_pos.x, cursor_pos.y, cmd_reciver != nullptr ? cmd_reciver : theApp.m_pMainWnd);
+                if (command >= MOVE_TO_FOLDER_TAB_COMMAND_BASE && command < MOVE_TO_FOLDER_TAB_COMMAND_BASE + target_tabs.size())
+                {
+                    MoveFilesToFolderTab(target_tabs[command - MOVE_TO_FOLDER_TAB_COMMAND_BASE]);
+                }
+                else if (command != 0)
+                {
+                    if (cmd_reciver != nullptr)
+                        cmd_reciver->SendMessage(WM_COMMAND, command);
+                    else
+                    {
+                        CUIWindowCmdHelper helper(this);
+                        helper.OnUiCommand(command);
+                    }
+                }
+                rtn = true;
+            }
+            else
+            {
+                rtn = TrackList::RButtonUp(point);
+            }
+        }
+    }
+    else
+    {
+        rtn = TrackList::RButtonUp(point);
+    }
     rect = old_rect;
     return rtn;
 }
@@ -1011,6 +1077,72 @@ void UiElement::MyPlayerList::RefreshFolder(int index)
 {
     if (IsFolderTab(index))
         SetFolderSongs(index, true);
+}
+
+void UiElement::MyPlayerList::MoveFilesToFolderTab(int target_tab_index)
+{
+    if (!IsFolderTab(target_tab_index) || target_tab_index == m_selected_tab)
+        return;
+
+    vector<int> selected_indexes;
+    GetItemsSelected(selected_indexes);
+    if (selected_indexes.empty())
+    {
+        int item_selected = GetItemSelected();
+        if (item_selected >= 0)
+            selected_indexes.push_back(item_selected);
+    }
+    if (selected_indexes.empty())
+        return;
+
+    vector<wstring> source_files;
+    bool contains_current_song{};
+    int current_index = CPlayer::GetInstance().GetIndex();
+    for (int index : selected_indexes)
+    {
+        SongInfo song = GetSongListData()->GetSongInfo(index);
+        if (song.IsEmpty() || song.is_cue || COSUPlayerHelper::IsOsuFile(song.file_path))
+            continue;
+        source_files.push_back(song.file_path);
+        if (index == current_index)
+            contains_current_song = true;
+    }
+    if (source_files.empty())
+        return;
+
+    if (CPlayer::GetInstance().m_loading)
+        return;
+    if (!CPlayer::GetInstance().GetPlayStatusMutex().try_lock_for(std::chrono::milliseconds(1000)))
+        return;
+
+    if (contains_current_song)
+        CPlayer::GetInstance().MusicControl(Command::CLOSE);
+
+    int rtn{};
+    const wstring& target_folder = folders[target_tab_index];
+    if (source_files.size() > 1)
+        rtn = CommonDialogMgr::MoveFiles(theApp.m_pMainWnd->GetSafeHwnd(), source_files, target_folder);
+    else
+        rtn = CommonDialogMgr::MoveAFile(theApp.m_pMainWnd->GetSafeHwnd(), source_files.front(), target_folder);
+
+    CPlayer::GetInstance().GetPlayStatusMutex().unlock();
+
+    if (rtn != ERROR_SUCCESS)
+    {
+        LPWSTR msg_buf{};
+        DWORD msg_size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr, rtn, 0, reinterpret_cast<LPWSTR>(&msg_buf), 0, nullptr);
+        wstring error_info = msg_size > 0 && msg_buf != nullptr ? msg_buf : std::to_wstring(rtn);
+        if (msg_buf != nullptr)
+            LocalFree(msg_buf);
+        theApp.m_pMainWnd->MessageBox(error_info.c_str(), NULL, MB_ICONWARNING | MB_OK);
+        return;
+    }
+
+    const int current_tab = m_selected_tab;
+    SetFolderSongs(target_tab_index, true);
+    if (current_tab != target_tab_index)
+        SetFolderSongs(current_tab, true);
 }
 
 void UiElement::MyPlayerList::SaveFolderTabSettings()
