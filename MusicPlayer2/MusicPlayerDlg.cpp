@@ -37,11 +37,51 @@
 #include "UIPanel/SettingsPanel.h"
 #include "UIDialog/UITestDialog.h"
 #include "OpenUrlDlg.h"
+#include "AudioTag.h"
 #include <random>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+namespace
+{
+    bool DownloadUrlToMemory(const wstring& url, vector<unsigned char>& data)
+    {
+        data.clear();
+        CInternetSession session;
+        CStdioFile* pFile{};
+        try
+        {
+            pFile = session.OpenURL(url.c_str(), 1, INTERNET_FLAG_RELOAD | INTERNET_FLAG_DONT_CACHE);
+            BYTE buffer[8192]{};
+            UINT read_size{};
+            while ((read_size = pFile->Read(buffer, sizeof(buffer))) > 0)
+                data.insert(data.end(), buffer, buffer + read_size);
+            pFile->Close();
+            delete pFile;
+            session.Close();
+            return !data.empty();
+        }
+        catch (CInternetException* e)
+        {
+            if (pFile != nullptr)
+            {
+                pFile->Close();
+                delete pFile;
+            }
+            session.Close();
+            e->Delete();
+            data.clear();
+            return false;
+        }
+    }
+
+    string BytesToString(const vector<unsigned char>& data)
+    {
+        return string(reinterpret_cast<const char*>(data.data()), data.size());
+    }
+}
 
 
 
@@ -514,6 +554,8 @@ void CMusicPlayerDlg::SaveConfig()
     ini.WriteBool(L"general", L"auto_download_only_tag_full", theApp.m_general_setting_data.auto_download_only_tag_full);
     ini.WriteBool(L"general", L"save_lyric_to_song_folder", theApp.m_general_setting_data.save_lyric_to_song_folder);
     ini.WriteBool(L"general", L"save_album_to_song_folder", theApp.m_general_setting_data.save_album_to_song_folder);
+    ini.WriteBool(L"general", L"auto_download_lyric_to_audio_file", theApp.m_general_setting_data.auto_download_lyric_to_audio_file);
+    ini.WriteBool(L"general", L"auto_download_cover_to_audio_file", theApp.m_general_setting_data.auto_download_cover_to_audio_file);
     ini.WriteBool(L"general", L"download_lyric_text_and_translation_in_same_line", theApp.m_general_setting_data.download_lyric_text_and_translation_in_same_line);
     ini.WriteString(L"general", L"sf2_path", theApp.m_play_setting_data.sf2_path);
     ini.WriteBool(L"general", L"midi_use_inner_lyric", theApp.m_play_setting_data.midi_use_inner_lyric);
@@ -729,6 +771,8 @@ void CMusicPlayerDlg::LoadConfig()
     theApp.m_general_setting_data.auto_download_only_tag_full = ini.GetBool(L"general", L"auto_download_only_tag_full", 1);
     theApp.m_general_setting_data.save_lyric_to_song_folder = ini.GetBool(L"general", L"save_lyric_to_song_folder", false);
     theApp.m_general_setting_data.save_album_to_song_folder = ini.GetBool(L"general", L"save_album_to_song_folder", false);
+    theApp.m_general_setting_data.auto_download_lyric_to_audio_file = ini.GetBool(L"general", L"auto_download_lyric_to_audio_file", false);
+    theApp.m_general_setting_data.auto_download_cover_to_audio_file = ini.GetBool(L"general", L"auto_download_cover_to_audio_file", false);
     theApp.m_general_setting_data.download_lyric_text_and_translation_in_same_line = ini.GetBool(L"general", L"download_lyric_text_and_translation_in_same_line", false);
     theApp.m_play_setting_data.sf2_path = ini.GetString(L"general", L"sf2_path", L"");
     theApp.m_play_setting_data.midi_use_inner_lyric = ini.GetBool(L"general", L"midi_use_inner_lyric", 0);
@@ -4761,7 +4805,7 @@ UINT CMusicPlayerDlg::ViewOnlineThreadFunc(LPVOID lpParam)
 UINT CMusicPlayerDlg::DownloadLyricAndCoverThreadFunc(LPVOID lpParam)
 {
     CCommon::SetThreadLanguageList(theApp.m_str_table.GetLanguageTag());
-    //CMusicPlayerDlg* pThis = (CMusicPlayerDlg*)lpParam;
+    CMusicPlayerDlg* pThis = (CMusicPlayerDlg*)lpParam;
 
     bool is_osu{ CPlayer::GetInstance().IsOsuFile() };
     // 获取媒体库项目后所有操作基于song_info_ori进行
@@ -4809,39 +4853,65 @@ UINT CMusicPlayerDlg::DownloadLyricAndCoverThreadFunc(LPVOID lpParam)
             return 0;
         }
 
-        //获取要保存的专辑封面的文件名
-        wstring album_name;
-        if (match_item.album == song_info_ori.album && !song_info_ori.album.empty())      //如果在线搜索结果的唱片集名称和歌曲的相同，则以“唱片集”为文件名保存
+        bool saved_cover_to_audio_file{};
+        if (theApp.m_general_setting_data.auto_download_cover_to_audio_file)
         {
-            album_name = match_item.album;
-            CCommon::FileNameNormalize(album_name);
+            vector<unsigned char> cover_data;
+            if (DownloadUrlToMemory(cover_url, cover_data))
+            {
+                CAudioTag audio_tag(song_info_ori.file_path);
+                wstring cover_ext = CFilePathHelper(cover_url).GetFileExtension();
+                if (audio_tag.WriteAlbumCover(BytesToString(cover_data), cover_ext.empty() ? L"jpg" : cover_ext))
+                {
+                    saved_cover_to_audio_file = true;
+                    CPlayer::GetInstance().SearchOutAlbumCover();
+                    ::PostMessage(theApp.m_pMainWnd->GetSafeHwnd(), WM_ALBUM_COVER_DOWNLOAD_COMPLETE, 0, 0);
+                }
+                else
+                {
+                    pThis->MessageBox(theApp.m_str_table.LoadText(L"MSG_COVER_DL_SAVE_TO_AUDIO_FILE_FAILED").c_str(), NULL, MB_ICONWARNING | MB_OK);
+                }
+            }
         }
-        else                //否则以歌曲文件名为文件名保存
+        if (!saved_cover_to_audio_file)
         {
-            album_name = song_info_ori.GetFileName();
+
+            //获取要保存的专辑封面的文件名
+            wstring album_name;
+            if (match_item.album == song_info_ori.album && !song_info_ori.album.empty())      //如果在线搜索结果的唱片集名称和歌曲的相同，则以“唱片集”为文件名保存
+            {
+                album_name = match_item.album;
+                CCommon::FileNameNormalize(album_name);
+            }
+            else                //否则以歌曲文件名为文件名保存
+            {
+                album_name = song_info_ori.GetFileName();
+            }
+            // 判断是否保存到封面文件夹
+            bool saved_to_album_cover_folder{ !theApp.m_general_setting_data.save_album_to_song_folder && CCommon::FolderExist(theApp.m_app_setting_data.AbsoluteAlbumCoverPath()) };
+            if (theApp.m_general_setting_data.auto_download_cover_to_audio_file)
+                saved_to_album_cover_folder = true;
+
+            CFilePathHelper cover_file_path;
+            if (saved_to_album_cover_folder)
+                cover_file_path.SetFilePath(theApp.m_app_setting_data.AbsoluteAlbumCoverPath() + album_name);
+            else
+                cover_file_path.SetFilePath(song_info_ori_path.GetDir() + album_name);
+
+            CFilePathHelper url_path(cover_url);
+            cover_file_path.ReplaceFileExtension(url_path.GetFileExtension().c_str());
+
+            //下面专辑封面
+            URLDownloadToFile(0, cover_url.c_str(), cover_file_path.GetFilePath().c_str(), 0, NULL);
+
+            //将下载的专辑封面改为隐藏属性
+            if (!saved_to_album_cover_folder)
+                SetFileAttributes(cover_file_path.GetFilePath().c_str(), FILE_ATTRIBUTE_HIDDEN);
+
+            //重新从本地获取专辑封面
+            CPlayer::GetInstance().SearchOutAlbumCover();
+            ::PostMessage(theApp.m_pMainWnd->GetSafeHwnd(), WM_ALBUM_COVER_DOWNLOAD_COMPLETE, 0, 0);
         }
-        // 判断是否保存到封面文件夹
-        bool saved_to_album_cover_folder{ !theApp.m_general_setting_data.save_album_to_song_folder && CCommon::FolderExist(theApp.m_app_setting_data.AbsoluteAlbumCoverPath()) };
-
-        CFilePathHelper cover_file_path;
-        if (saved_to_album_cover_folder)
-            cover_file_path.SetFilePath(theApp.m_app_setting_data.AbsoluteAlbumCoverPath() + album_name);
-        else
-            cover_file_path.SetFilePath(song_info_ori_path.GetDir() + album_name);
-
-        CFilePathHelper url_path(cover_url);
-        cover_file_path.ReplaceFileExtension(url_path.GetFileExtension().c_str());
-
-        //下面专辑封面
-        URLDownloadToFile(0, cover_url.c_str(), cover_file_path.GetFilePath().c_str(), 0, NULL);
-
-        //将下载的专辑封面改为隐藏属性
-        if (!saved_to_album_cover_folder)
-            SetFileAttributes(cover_file_path.GetFilePath().c_str(), FILE_ATTRIBUTE_HIDDEN);
-
-        //重新从本地获取专辑封面
-        CPlayer::GetInstance().SearchOutAlbumCover();
-        ::PostMessage(theApp.m_pMainWnd->GetSafeHwnd(), WM_ALBUM_COVER_DOWNLOAD_COMPLETE, 0, 0);
     }
     //自动下载歌词
     if (download_lyric)
@@ -4867,10 +4937,22 @@ UINT CMusicPlayerDlg::DownloadLyricAndCoverThreadFunc(LPVOID lpParam)
             CSongDataManager::GetInstance().AddItem(song_info_ori);
             return 0;
         }
+        if (theApp.m_general_setting_data.auto_download_lyric_to_audio_file)
+        {
+            CAudioTag audio_tag(song_info_ori.file_path);
+            if (audio_tag.WriteAudioLyric(lyric_str))
+            {
+                CPlayer::GetInstance().IniLyrics();
+                return 0;
+            }
+            pThis->MessageBox(theApp.m_str_table.LoadText(L"MSG_LYRIC_DL_SAVE_TO_AUDIO_FILE_FAILED").c_str(), NULL, MB_ICONWARNING | MB_OK);
+        }
         //保存歌词
         CFilePathHelper lyric_path;
         wstring file_name;
         bool save_to_lyric_folder = (!theApp.m_general_setting_data.save_lyric_to_song_folder && CCommon::FolderExist(theApp.m_lyric_setting_data.AbsoluteLyricPath()));    //是否保存到歌曲所在文件夹
+        if (theApp.m_general_setting_data.auto_download_lyric_to_audio_file)
+            save_to_lyric_folder = true;
         if (song_info_ori.is_cue || is_osu || save_to_lyric_folder)   // cue、osu文件使，或保存到歌词文件夹时用与cue同样的“艺术家 - 标题”保存自动下载歌词
         {
             file_name = CSongInfoHelper::GetDisplayStr(song_info_ori, DF_ARTIST_TITLE);

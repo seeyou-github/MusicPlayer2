@@ -105,6 +105,8 @@ void CDataSettingsDlg::GetDataFromUi()
     m_data.minimize_to_notify_icon = theApp.m_app_setting_data.show_notify_icon && (((CButton*)GetDlgItem(IDC_MINIMIZE_TO_NOTIFY_RADIO))->GetCheck() != 0);
     m_data.save_lyric_to_song_folder = (((CButton*)GetDlgItem(IDC_SAVE_TO_SONG_FOLDER))->GetCheck() != 0);
     m_data.save_album_to_song_folder = (((CButton*)GetDlgItem(IDC_SAVE_TO_SONG_FOLDER3))->GetCheck() != 0);
+    m_data.auto_download_lyric_to_audio_file = (IsDlgButtonChecked(IDC_AUTO_DOWNLOAD_LYRIC_TO_AUDIO_FILE) != 0);
+    m_data.auto_download_cover_to_audio_file = (IsDlgButtonChecked(IDC_AUTO_DOWNLOAD_COVER_TO_AUDIO_FILE) != 0);
     m_data.download_lyric_text_and_translation_in_same_line = (IsDlgButtonChecked(IDC_LYRIC_AND_TRANSLATION_IN_SAME_LINE_RADIO) != 0);
 
     //获取语言的设置
@@ -205,6 +207,7 @@ BOOL CDataSettingsDlg::OnInitDialog()
         ((CButton*)GetDlgItem(IDC_SAVE_TO_SONG_FOLDER))->SetCheck(TRUE);
     else
         ((CButton*)GetDlgItem(IDC_SAVE_TO_LYRIC_FOLDER))->SetCheck(TRUE);
+    CheckDlgButton(IDC_AUTO_DOWNLOAD_LYRIC_TO_AUDIO_FILE, m_data.auto_download_lyric_to_audio_file);
 
     //判断歌词文件夹是否存在
     bool lyric_path_exist = CCommon::FolderExist(theApp.m_lyric_setting_data.AbsoluteLyricPath());
@@ -217,10 +220,11 @@ BOOL CDataSettingsDlg::OnInitDialog()
     }
     
     // 设置封面存储位置选项
-    if (m_data.save_lyric_to_song_folder)
+    if (m_data.save_album_to_song_folder)
         ((CButton*)GetDlgItem(IDC_SAVE_TO_SONG_FOLDER3))->SetCheck(TRUE);
     else
         ((CButton*)GetDlgItem(IDC_SAVE_TO_ALBUM_FOLDER3))->SetCheck(TRUE);
+    CheckDlgButton(IDC_AUTO_DOWNLOAD_COVER_TO_AUDIO_FILE, m_data.auto_download_cover_to_audio_file);
 
     // 判断封面文件夹是否存在
     bool album_path_exist = CCommon::FolderExist(theApp.m_app_setting_data.AbsoluteAlbumCoverPath());
@@ -261,9 +265,11 @@ void CDataSettingsDlg::EnableControl()
 
     ((CButton*)GetDlgItem(IDC_SAVE_TO_SONG_FOLDER))->EnableWindow(m_data.auto_download_lyric);
     ((CButton*)GetDlgItem(IDC_SAVE_TO_LYRIC_FOLDER))->EnableWindow(m_data.auto_download_lyric && CCommon::FolderExist(theApp.m_lyric_setting_data.AbsoluteLyricPath()));
+    ((CButton*)GetDlgItem(IDC_AUTO_DOWNLOAD_LYRIC_TO_AUDIO_FILE))->EnableWindow(m_data.auto_download_lyric);
 
     ((CButton*)GetDlgItem(IDC_SAVE_TO_SONG_FOLDER3))->EnableWindow(m_data.auto_download_album_cover);
     ((CButton*)GetDlgItem(IDC_SAVE_TO_ALBUM_FOLDER3))->EnableWindow(m_data.auto_download_album_cover && CCommon::FolderExist(theApp.m_app_setting_data.AbsoluteAlbumCoverPath()));
+    ((CButton*)GetDlgItem(IDC_AUTO_DOWNLOAD_COVER_TO_AUDIO_FILE))->EnableWindow(m_data.auto_download_album_cover);
 }
 
 
