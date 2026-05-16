@@ -68,6 +68,7 @@ namespace UiElement
         bool LoadFolderSongsFromCache(int index);
         void ApplyCacheTab(const CMyPlayerListCache::TabInfo& tab);
         CRect GetListRect() const;
+        void EnsureHighlightItemVisible() override;
 
     private:
         CRect m_element_rect;

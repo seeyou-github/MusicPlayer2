@@ -27,7 +27,7 @@ namespace UiElement
         virtual void HideTooltip() override;
 
         void EnsureItemVisible(int index);  //确保指定项在播放列表中可见
-        void EnsureHighlightItemVisible();  //确保高亮行可见
+        virtual void EnsureHighlightItemVisible();  //确保高亮行可见
         void CalculateItemRects();         //计算播放列表中每一项的矩形区域，保存在playlist_info.item_rects中
         int ItemHeight() const;
         void SetItemSelected(int index);    //设置单个项目选中

@@ -1198,3 +1198,13 @@ CRect UiElement::MyPlayerList::GetListRect() const
     list_rect.top += m_tab_height + ui->DPI(4);
     return list_rect;
 }
+
+void UiElement::MyPlayerList::EnsureHighlightItemVisible()
+{
+    CRect old_rect{ rect };
+    CRect list_rect{ GetListRect() };
+    if (!list_rect.IsRectEmpty())
+        SetRect(list_rect);
+    TrackList::EnsureHighlightItemVisible();
+    rect = old_rect;
+}
