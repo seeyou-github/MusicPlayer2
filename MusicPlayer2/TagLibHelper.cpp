@@ -29,6 +29,7 @@
 #include "taglib/id3v2frame.h"
 #include "taglib/popularimeterframe.h"
 #include "taglib/matroskafile.h"
+#include "taglib/matroskatag.h"
 #include "taglib/matroskaattachments.h"
 #include "taglib/matroskaattachedfile.h"
 
