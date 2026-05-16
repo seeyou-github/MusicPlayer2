@@ -169,13 +169,13 @@ enum RecentPlayedRange
 struct DesktopLyricSettingData      //桌面歌词设置
 {
     bool lyric_double_line{ true };
-    FontInfo lyric_font;
-    COLORREF text_color1{ 4533033 };
-    COLORREF text_color2{ 12889516 };
-    int text_gradient{ 2 };
+    FontInfo lyric_font{ L"Microsoft YaHei UI", 36, {} };
+    COLORREF text_color1{ 13361120 };
+    COLORREF text_color2{ 14016991 };
+    int text_gradient{ 1 };
     COLORREF highlight_color1{ 4210816 };
     COLORREF highlight_color2{ 28123 };
-    int highlight_gradient{ 2 };
+    int highlight_gradient{ 1 };
     int opacity{ 100 };
     bool lock_desktop_lyric{ true };
     bool hide_lyric_window_without_lyric{ true };  //没有歌词时隐藏歌词窗口
