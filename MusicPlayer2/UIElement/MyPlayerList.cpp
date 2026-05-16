@@ -370,7 +370,7 @@ void UiElement::MyPlayerList::DrawScrollArea()
         UiFontGuard font_guard(ui, GetTabFontSize(tab_index == m_selected_tab));
         int tab_width = ui->GetDrawer().GetTextExtent(name.c_str()).cx + tab_padding * 2;
         if (IsFavouriteTab(tab_index))
-            tab_width += ui->DPI(18);
+            tab_width += ui->GetDrawer().GetTextExtent(L"\u2665").cx + ui->DPI(6);
         tab_width = (std::max)(tab_width, min_tab_width);
         tab_widths.push_back(tab_width);
         m_tab_total_width += tab_width;
@@ -432,11 +432,12 @@ void UiElement::MyPlayerList::DrawScrollArea()
             UiFontGuard font_guard(ui, GetTabFontSize(tab_index == m_selected_tab));
             if (IsFavouriteTab(tab_index))
             {
-                const int heart_width = ui->DPI(14);
+                const int heart_width = ui->GetDrawer().GetTextExtent(L"\u2665").cx;
+                const int heart_gap = ui->DPI(6);
                 CRect heart_rect{ text_rect };
                 heart_rect.right = heart_rect.left + heart_width;
                 ui->GetDrawer().DrawWindowText(heart_rect, L"\u2665", FAVOURITE_TAB_HEART_COLOR, Alignment::LEFT, true);
-                text_rect.left += heart_width + ui->DPI(4);
+                text_rect.left += heart_width + heart_gap;
             }
             ui->GetDrawer().DrawWindowText(text_rect, name.c_str(), GetTabTextColor(tab_index == m_selected_tab), Alignment::LEFT, true);
         }
