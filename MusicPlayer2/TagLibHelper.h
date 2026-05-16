@@ -25,6 +25,7 @@ public:
     static string GetAiffAlbumCover(const wstring& file_path, int& type);
     static string GetMpcAlbumCover(const wstring& file_path, int& type);
     static string GetWavePackAlbumCover(const wstring& file_path, int& type);
+    static string GetMatroskaAlbumCover(const wstring& file_path, int& type);
 
     //读标签信息
     static void GetFlacTagInfo(SongInfo& song_info);
@@ -36,6 +37,7 @@ public:
     static void GetOggTagInfo(SongInfo& song_info);
     static void GetMpcTagInfo(SongInfo& song_info);
     static void GetOpusTagInfo(SongInfo& song_info);
+    static void GetMatroskaTagInfo(SongInfo& song_info);
     static void GetWavPackTagInfo(SongInfo& song_info);
     static void GetTtaTagInfo(SongInfo& song_info);
     static void GetAiffTagInfo(SongInfo& song_info);
@@ -53,6 +55,7 @@ public:
     static void GetOggPropertyMap(const wstring& file_path, std::map<wstring, wstring>& property_map);
     static void GetMpcPropertyMap(const wstring& file_path, std::map<wstring, wstring>& property_map);
     static void GetOpusPropertyMap(const wstring& file_path, std::map<wstring, wstring>& property_map);
+    static void GetMatroskaPropertyMap(const wstring& file_path, std::map<wstring, wstring>& property_map);
     static void GetWavPackPropertyMap(const wstring& file_path, std::map<wstring, wstring>& property_map);
     static void GetTtaPropertyMap(const wstring& file_path, std::map<wstring, wstring>& property_map);
     static void GetAiffPropertyMap(const wstring& file_path, std::map<wstring, wstring>& property_map);
@@ -66,6 +69,7 @@ public:
     static wstring GetFlacLyric(const wstring& file_path);
     static wstring GetAsfLyric(const wstring& file_path);
     static wstring GetWavLyric(const wstring& file_path);
+    static wstring GetMatroskaLyric(const wstring& file_path);
 
     //写入歌词
     static bool WriteMpegLyric(const wstring& file_path, const wstring& lyric_contents);
@@ -73,6 +77,7 @@ public:
     static bool WriteM4aLyric(const wstring& file_path, const wstring& lyric_contents);
     static bool WriteAsfLyric(const wstring& file_path, const wstring& lyric_contents);
     static bool WriteWavLyric(const wstring& file_path, const wstring& lyric_contents);
+    static bool WriteMatroskaLyric(const wstring& file_path, const wstring& lyric_contents);
 
     //写专辑封面
     static bool WriteMp3AlbumCover(const wstring& file_path, const wstring& album_cover_path, bool remove_exist = true);
@@ -101,6 +106,8 @@ public:
     static bool WriteMpcAlbumCover(const wstring& file_path, const string& album_cover_data, const wstring& ext, bool remove_exist = true);
     static bool WriteWavePackAlbumCover(const wstring& file_path, const wstring& album_cover_path, bool remove_exist = true);
     static bool WriteWavePackAlbumCover(const wstring& file_path, const string& album_cover_data, const wstring& ext, bool remove_exist = true);
+    static bool WriteMatroskaAlbumCover(const wstring& file_path, const wstring& album_cover_path, bool remove_exist = true);
+    static bool WriteMatroskaAlbumCover(const wstring& file_path, const string& album_cover_data, const wstring& ext, bool remove_exist = true);
 
     //写标签信息
     static bool WriteMpegTag(const SongInfo& song_info);
@@ -111,6 +118,7 @@ public:
     static bool WriteApeTag(const SongInfo& song_info);
     static bool WriteMpcTag(const SongInfo& song_info);
     static bool WriteOpusTag(const SongInfo& song_info);
+    static bool WriteMatroskaTag(const SongInfo& song_info);
     static bool WriteWavPackTag(const SongInfo& song_info);
     static bool WriteTtaTag(const SongInfo& song_info);
     static bool WriteAiffTag(const SongInfo& song_info);

@@ -28,6 +28,9 @@
 #include "taglib/textidentificationframe.h"
 #include "taglib/id3v2frame.h"
 #include "taglib/popularimeterframe.h"
+#include "taglib/matroskafile.h"
+#include "taglib/matroskaattachments.h"
+#include "taglib/matroskaattachedfile.h"
 
 
 using namespace TagLib;
@@ -143,6 +146,20 @@ int GetPicType(const std::wstring& mimeType)
     else
         type = -1;
     return type;
+}
+
+static std::wstring GetImageMimeType(const std::wstring& ext)
+{
+    if (ext == L"jpg" || ext == L"jpeg")
+        return L"image/jpeg";
+    else if (ext == L"png")
+        return L"image/png";
+    else if (ext == L"gif")
+        return L"image/gif";
+    else if (ext == L"bmp")
+        return L"image/bmp";
+    else
+        return L"image/" + ext;
 }
 
 static void GetId3v2AlbumCover(ID3v2::Tag* id3v2, string& cover_contents, int& type)
@@ -339,6 +356,77 @@ static void GetXiphCommentAlbumCover(Ogg::XiphComment* tag, string& cover_conten
             type = GetPicType(img_type);
         }
     }
+}
+
+static bool IsMatroskaPictureMimeType(const String& media_type)
+{
+    return CCommon::StringLeftMatch(media_type.toWString(), L"image/");
+}
+
+static void GetMatroskaAttachmentAlbumCover(Matroska::Attachments* attachments, string& cover_contents, int& type)
+{
+    if (attachments == nullptr)
+        return;
+
+    for (const auto& attached_file : attachments->attachedFileList())
+    {
+        if (!IsMatroskaPictureMimeType(attached_file.mediaType()))
+            continue;
+
+        const auto& pic_data = attached_file.data();
+        if (!pic_data.isEmpty())
+        {
+            cover_contents.assign(pic_data.data(), pic_data.size());
+            type = GetPicType(attached_file.mediaType().toWString());
+            return;
+        }
+    }
+}
+
+static void RemoveMatroskaPictureAttachments(Matroska::Attachments* attachments)
+{
+    if (attachments == nullptr)
+        return;
+
+    std::vector<Matroska::AttachedFile::UID> picture_uids;
+    for (const auto& attached_file : attachments->attachedFileList())
+    {
+        if (IsMatroskaPictureMimeType(attached_file.mediaType()))
+            picture_uids.push_back(attached_file.uid());
+    }
+
+    for (auto uid : picture_uids)
+        attachments->removeAttachedFile(uid);
+}
+
+static bool WriteMatroskaAttachmentAlbumCover(const std::wstring& file_path, const ByteVector& pic_data, std::wstring ext, bool remove_exist)
+{
+    Matroska::File file(file_path.c_str());
+    if (!file.isValid())
+        return false;
+
+    auto attachments = file.attachments(!pic_data.isEmpty() || remove_exist);
+    if (attachments == nullptr)
+        return false;
+
+    if (remove_exist)
+        RemoveMatroskaPictureAttachments(attachments);
+
+    if (!pic_data.isEmpty())
+    {
+        CCommon::StringTransform(ext, false);
+        if (ext.empty())
+            ext = L"jpg";
+        Matroska::AttachedFile attached_file(
+            pic_data,
+            L"cover." + ext,
+            GetImageMimeType(ext),
+            0,
+            L"Cover");
+        attachments->addAttachedFile(attached_file);
+    }
+
+    return file.save();
 }
 
 static std::wstring GetId3v2Lyric(ID3v2::Tag* id3v2)
@@ -620,6 +708,12 @@ static void getOpusPropertyMap(Ogg::Opus::File& file, std::map<std::wstring, std
     GetTagPropertyMap(tag, property_map);
 }
 
+static void getMatroskaPropertyMap(Matroska::File& file, std::map<std::wstring, std::wstring>& property_map)
+{
+    auto tag = file.tag(false);
+    GetTagPropertyMap(tag, property_map);
+}
+
 static void getWavPackPropertyMap(WavPack::File& file, std::map<std::wstring, std::wstring>& property_map)
 {
     if (file.hasAPETag())
@@ -854,6 +948,17 @@ string CTagLibHelper::GetWavePackAlbumCover(const std::wstring& file_path, int& 
     return cover_contents;
 }
 
+string CTagLibHelper::GetMatroskaAlbumCover(const std::wstring& file_path, int& type)
+{
+    string cover_contents;
+    Matroska::File file(file_path.c_str());
+    if (!file.isValid())
+        return cover_contents;
+
+    GetMatroskaAttachmentAlbumCover(file.attachments(), cover_contents, type);
+    return cover_contents;
+}
+
 void CTagLibHelper::GetFlacTagInfo(SongInfo& song_info)
 {
     FLAC::File file(song_info.file_path.c_str());
@@ -997,6 +1102,21 @@ void CTagLibHelper::GetOpusTagInfo(SongInfo& song_info)
     OtherPropertyToSongInfo(song_info, property_map);
 }
 
+void CTagLibHelper::GetMatroskaTagInfo(SongInfo& song_info)
+{
+    Matroska::File file(song_info.file_path.c_str());
+    if (!file.isValid())
+        return;
+
+    auto tag = file.tag(false);
+    if (tag != nullptr)
+        TagToSongInfo(song_info, tag, true);
+
+    std::map<std::wstring, std::wstring> property_map;
+    getMatroskaPropertyMap(file, property_map);
+    OtherPropertyToSongInfo(song_info, property_map);
+}
+
 void CTagLibHelper::GetWavPackTagInfo(SongInfo& song_info)
 {
     WavPack::File file(song_info.file_path.c_str());
@@ -1126,6 +1246,13 @@ void CTagLibHelper::GetOpusPropertyMap(const std::wstring& file_path, std::map<s
     getOpusPropertyMap(file, property_map);
 }
 
+void CTagLibHelper::GetMatroskaPropertyMap(const std::wstring& file_path, std::map<std::wstring, std::wstring>& property_map)
+{
+    Matroska::File file(file_path.c_str());
+    if (file.isValid())
+        getMatroskaPropertyMap(file, property_map);
+}
+
 void CTagLibHelper::GetWavPackPropertyMap(const std::wstring& file_path, std::map<std::wstring, std::wstring>& property_map)
 {
     WavPack::File file(file_path.c_str());
@@ -1219,6 +1346,20 @@ std::wstring CTagLibHelper::GetWavLyric(const std::wstring& file_path)
 
 }
 
+std::wstring CTagLibHelper::GetMatroskaLyric(const std::wstring& file_path)
+{
+    std::wstring lyrics;
+    Matroska::File file(file_path.c_str());
+    if (file.isValid())
+    {
+        auto properties = file.properties();
+        auto lyric_item = properties[STR_FLAC_LYRIC_TAG];
+        if (!lyric_item.isEmpty())
+            lyrics = lyric_item.front().toWString();
+    }
+    return lyrics;
+}
+
 bool CTagLibHelper::WriteMpegLyric(const std::wstring& file_path, const std::wstring& lyric_contents)
 {
     std::wstring lyrics;
@@ -1309,6 +1450,28 @@ bool CTagLibHelper::WriteWavLyric(const std::wstring& file_path, const std::wstr
     WriteId3v2Lyric(id3v2, lyric_contents);
     bool saved = file.save(RIFF::WAV::File::TagTypes::AllTags, File::StripOthers, GetWriteId3v2Version());
     return saved;
+}
+
+bool CTagLibHelper::WriteMatroskaLyric(const std::wstring& file_path, const std::wstring& lyric_contents)
+{
+    Matroska::File file(file_path.c_str());
+    if (file.isValid())
+    {
+        auto properties = file.properties();
+        if (lyric_contents.empty())
+        {
+            properties.erase(STR_FLAC_LYRIC_TAG);
+        }
+        else
+        {
+            StringList lyric_item;
+            lyric_item.append(lyric_contents);
+            properties[STR_FLAC_LYRIC_TAG] = lyric_item;
+        }
+        file.setProperties(properties);
+        return file.save();
+    }
+    return false;
 }
 
 bool CTagLibHelper::WriteMp3AlbumCover(const std::wstring& file_path, const std::wstring& album_cover_path, bool remove_exist)
@@ -1807,6 +1970,23 @@ bool CTagLibHelper::WriteWavePackAlbumCover(const std::wstring& file_path, const
     return file.save();
 }
 
+bool CTagLibHelper::WriteMatroskaAlbumCover(const std::wstring& file_path, const std::wstring& album_cover_path, bool remove_exist)
+{
+    ByteVector pic_data;
+    std::wstring ext;
+    if (!album_cover_path.empty())
+    {
+        FileToByteVector(pic_data, album_cover_path);
+        ext = CFilePathHelper(album_cover_path).GetFileExtension();
+    }
+    return WriteMatroskaAttachmentAlbumCover(file_path, pic_data, ext, remove_exist);
+}
+
+bool CTagLibHelper::WriteMatroskaAlbumCover(const std::wstring& file_path, const string& album_cover_data, const wstring& ext, bool remove_exist)
+{
+    return WriteMatroskaAttachmentAlbumCover(file_path, AlbumCoverDataToByteVector(album_cover_data), ext, remove_exist);
+}
+
 bool CTagLibHelper::WriteMpegTag(const SongInfo& song_info)
 {
     MPEG::File file(song_info.file_path.c_str());
@@ -1889,6 +2069,18 @@ bool CTagLibHelper::WriteOpusTag(const SongInfo& song_info)
     WriteOtherProperties(song_info, file);
     bool saved = file.save();
     return saved;
+}
+
+bool CTagLibHelper::WriteMatroskaTag(const SongInfo& song_info)
+{
+    Matroska::File file(song_info.file_path.c_str());
+    if (!file.isValid())
+        return false;
+
+    auto tag = file.tag(true);
+    SongInfoToTag(song_info, tag);
+    WriteOtherProperties(song_info, file);
+    return file.save();
 }
 
 bool CTagLibHelper::WriteWavPackTag(const SongInfo& song_info)
