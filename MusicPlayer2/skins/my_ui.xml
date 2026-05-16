@@ -59,8 +59,7 @@
 			
             <verticalLayout margin="0">
               <myPlayerList item_height="40" show_favourite_tab="true" tab_margin_top="0" tab_margin_left="0" tab_margin_right="0" tab_height="36" tab_padding="18"
-                            tab_background_color="#2D3037" tab_selected_background_color="#20222A" tab_unselected_background_color="#2D3037"
-                            tab_selected_text_color="#eeeeee" tab_unselected_text_color="#aaaaaa" tab_selected_font_size="14" tab_unselected_font_size="14" scrollbar_width="14" scrollbar_narrow_width="8" scrollbar_min_handle_length="24"/>
+                            tab_selected_font_size="14" tab_unselected_font_size="14" scrollbar_width="14" scrollbar_narrow_width="8" scrollbar_min_handle_length="24"/>
             </verticalLayout>
 			
 			 <!--我喜欢的音乐-->
@@ -83,7 +82,7 @@
         </horizontalLayout>
         <!--播放控制栏 -->
         <!--progressBar高度：height="13" bar_height="13" 需要同时设置 -->
-        <progressBar show_play_time="true" height="13" bar_height="10" auto_color="false"  progress_back_color="#333333" progress_color="#777777" time_color="#eeeeee"/>
+        <progressBar show_play_time="true" height="13" bar_height="10" auto_color="false"/>
         <rectangle height="72" no_corner_radius="true" theme_color="false">
           <horizontalLayout height="72">
 		  
@@ -96,7 +95,7 @@
                 <verticalLayout margin-left="4" hide-width="32">
                   <!--<text type="title" style="scroll" height="24" font_size="10"/>-->
                       <!--<text type="artist" style="scroll" height="24"/>-->
-                  <bottomLyrics margin-left="14" height="54" max-width="560" font_size="20" single_line="true" played_text_color="#0f91a" unplayed_text_color="#eeeeee" next_text_color="#aaaaaa"/>
+                  <bottomLyrics margin-left="14" height="54" max-width="560" font_size="20" single_line="true"/>
                 </verticalLayout>
                 <placeHolder/>
               </element>
@@ -143,12 +142,12 @@
               <verticalLayout margin="8" margin-top="5%" >
                   <text type="title" style="scroll" height="46" font_size="32" alignment="center" color_style="emphasis1"/>
                 <text type="artist" style="scroll" margin-top="8" height="34" font_size="18" alignment="center" color_style="emphasis2"/>
-                <lyrics margin-top="10" margin-bottom="10" font_size="26" text_color="#888888" playing_text_color="#47ec5a"/>
+                <lyrics margin-top="10" margin-bottom="10" font_size="26"/>
               </verticalLayout>
             </horizontalLayout>
             <!--播放控制栏-->
 			<!--progressBar高度：height="13" bar_height="13" 需要同时设置 -->
-            <progressBar show_play_time="true" height="13" bar_height="10" auto_color="false"  progress_back_color="#333333" progress_color="#777777" time_color="#eeeeee"/>
+            <progressBar show_play_time="true" height="13" bar_height="10" auto_color="false"/>
             <rectangle height="72" no_corner_radius="true" theme_color="false">
 
               <horizontalLayout height="72">

@@ -18,10 +18,6 @@ namespace UiElement
         bool use_default_font = false;
         bool font_size_set = false;
         int font_size{ 9 };
-        bool text_color_set = false;
-        bool playing_text_color_set = false;
-        COLORREF text_color{};
-        COLORREF playing_text_color{};
         UIFont custom_lyric_font;
         UIFont custom_lyric_translate_font;
         int custom_font_size{};

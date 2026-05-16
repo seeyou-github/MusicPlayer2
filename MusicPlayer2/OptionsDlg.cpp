@@ -75,6 +75,7 @@ BOOL COptionsDlg::OnInitDialog()
 	m_tab_vect.push_back(&m_tab4_dlg);
 	m_tab_vect.push_back(&m_media_lib_dlg);
 	m_tab_vect.push_back(&m_tab5_dlg);
+    m_tab_vect.push_back(&m_color_dlg);
     m_tab_height.assign(m_tab_vect.size(), 0);
     m_tab_created.assign(m_tab_vect.size(), false);
 
@@ -85,6 +86,7 @@ BOOL COptionsDlg::OnInitDialog()
     m_tab.AddWindowPlaceholder(theApp.m_str_table.LoadText(L"TITLE_OPT_PLAY").c_str(), IconMgr::IconType::IT_Play);
     m_tab.AddWindowPlaceholder(theApp.m_str_table.LoadText(L"TITLE_OPT_MEDIA_LIB").c_str(), IconMgr::IconType::IT_Media_Lib);
     m_tab.AddWindowPlaceholder(theApp.m_str_table.LoadText(L"TITLE_OPT_HOT_KEY").c_str(), IconMgr::IconType::IT_Key_Board);
+    m_tab.AddWindowPlaceholder(theApp.m_str_table.LoadText(L"TITLE_OPT_COLOR").c_str(), IconMgr::IconType::IT_Skin);
 
     m_tab.SetItemSize(CSize(theApp.DPI(60), theApp.DPI(24)));
     m_tab.AdjustTabWindowSize();
@@ -169,6 +171,7 @@ bool COptionsDlg::CreateTabPage(int index)
     case 3: dialog_id = IDD_PLAY_SETTING_DIALOG; break;
     case 4: dialog_id = IDD_MEDIA_LIB_SETTING_DIALOG; break;
     case 5: dialog_id = IDD_HOT_KEY_SETTINGS_DIALOG; break;
+    case 6: dialog_id = IDD_COLOR_SETTING_DIALOG; break;
     default: return false;
     }
 

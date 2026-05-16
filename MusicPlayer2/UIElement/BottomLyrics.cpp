@@ -4,37 +4,6 @@
 #include "Player.h"
 #include "UserUi.h"
 #include "StackElement.h"
-#include <cstdlib>
-
-namespace
-{
-    bool ParseXmlColor(const std::string& str_color, COLORREF& color)
-    {
-        if (str_color.empty())
-            return false;
-
-        std::string color_text = str_color;
-        int base = 10;
-        if (color_text[0] == '#')
-        {
-            color_text.erase(0, 1);
-            base = 16;
-        }
-        else if (color_text.size() > 2 && color_text[0] == '0' && (color_text[1] == 'x' || color_text[1] == 'X'))
-        {
-            color_text.erase(0, 2);
-            base = 16;
-        }
-
-        char* end_ptr{};
-        unsigned long value = std::strtoul(color_text.c_str(), &end_ptr, base);
-        if (end_ptr == color_text.c_str() || *end_ptr != '\0' || value > 0xFFFFFF)
-            return false;
-
-        color = RGB((value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF);
-        return true;
-    }
-}
 
 void UiElement::BottomLyrics::Draw()
 {
@@ -140,18 +109,6 @@ void UiElement::BottomLyrics::FromXmlNode(tinyxml2::XMLElement* xml_node)
     Element::FromXmlNode(xml_node);
     CTinyXml2Helper::GetElementAttributeInt(xml_node, "font_size", font_size);
     CTinyXml2Helper::GetElementAttributeBool(xml_node, "single_line", single_line);
-    played_text_color_set = ParseXmlColor(CTinyXml2Helper::ElementAttribute(xml_node, "played_text_color"), played_text_color);
-    unplayed_text_color_set = ParseXmlColor(CTinyXml2Helper::ElementAttribute(xml_node, "unplayed_text_color"), unplayed_text_color);
-    next_text_color_set = ParseXmlColor(CTinyXml2Helper::ElementAttribute(xml_node, "next_text_color"), next_text_color);
-    if (!played_text_color_set)
-        played_text_color_set = ParseXmlColor(CTinyXml2Helper::ElementAttribute(xml_node, "playing_text_color"), played_text_color);
-    if (!unplayed_text_color_set)
-        unplayed_text_color_set = ParseXmlColor(CTinyXml2Helper::ElementAttribute(xml_node, "text_color"), unplayed_text_color);
-    if (!next_text_color_set && unplayed_text_color_set)
-    {
-        next_text_color = unplayed_text_color;
-        next_text_color_set = true;
-    }
 }
 
 bool UiElement::BottomLyrics::IsPlayDetailPageShown() const
@@ -185,15 +142,15 @@ void UiElement::BottomLyrics::DrawNextLyric(CRect rect, const std::wstring& text
 
 COLORREF UiElement::BottomLyrics::PlayedTextColor() const
 {
-    return played_text_color_set ? played_text_color : ui->GetUIColors().color_text;
+    return theApp.m_app_setting_data.bottom_lyric_played_text_color;
 }
 
 COLORREF UiElement::BottomLyrics::UnplayedTextColor() const
 {
-    return unplayed_text_color_set ? unplayed_text_color : ui->GetUIColors().color_text_2;
+    return theApp.m_app_setting_data.bottom_lyric_unplayed_text_color;
 }
 
 COLORREF UiElement::BottomLyrics::NextTextColor() const
 {
-    return next_text_color_set ? next_text_color : ui->GetUIColors().color_text_2;
+    return theApp.m_app_setting_data.bottom_lyric_next_text_color;
 }

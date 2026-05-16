@@ -46,6 +46,7 @@
 #define IDD_PLAY_SETTING_DIALOG         221
 #define IDD_SUPPORT_FORMAT_DIALOG       222
 #define IDI_DEFAULT_COVER               224
+#define IDD_COLOR_SETTING_DIALOG        694
 #define IDI_SKIN                        225
 #define IDI_EQ                          226
 #define IDI_SETTING                     227
@@ -1115,7 +1116,7 @@
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        694
+#define _APS_NEXT_RESOURCE_VALUE        695
 #define _APS_NEXT_COMMAND_VALUE         33624
 #define _APS_NEXT_CONTROL_VALUE         1413
 #define _APS_NEXT_SYMED_VALUE           101

@@ -27,12 +27,6 @@ namespace UiElement
         virtual void FromXmlNode(tinyxml2::XMLElement* xml_node) override;
 
     private:
-        struct TabColor
-        {
-            bool set{};
-            COLORREF color{};
-        };
-
         void NormalizeFolderTabs();
         std::wstring NormalizeFolderPath(const std::wstring& folder_path) const;
         std::wstring GetFolderTabName(int index) const;
@@ -60,7 +54,6 @@ namespace UiElement
         int GetTabFontSize(bool selected) const;
         COLORREF GetTabTextColor(bool selected) const;
         COLORREF GetTabBackColor(bool selected, bool hover) const;
-        bool ParseTabColor(tinyxml2::XMLElement* xml_node, const char* attr_name, TabColor& color);
         void ShowTabContextMenu(int index);
         bool SelectFolderPath(std::wstring& folder_path);
         void AddFolder();
@@ -106,11 +99,6 @@ namespace UiElement
         int m_tab_padding_config{ 18 };
         int m_tab_selected_font_size{};
         int m_tab_unselected_font_size{};
-        TabColor m_tab_background_color;
-        TabColor m_tab_selected_background_color;
-        TabColor m_tab_unselected_background_color;
-        TabColor m_tab_selected_text_color;
-        TabColor m_tab_unselected_text_color;
         bool m_show_favourite_tab{ true };
     };
 }

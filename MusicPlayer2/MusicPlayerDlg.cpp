@@ -460,6 +460,19 @@ void CMusicPlayerDlg::SaveConfig()
     ini.WriteInt(L"config", L"song_list_text_color", theApp.m_app_setting_data.song_list_text_color);
     ini.WriteBool(L"config", L"song_list_custom_playing_text_color", theApp.m_app_setting_data.song_list_custom_playing_text_color);
     ini.WriteInt(L"config", L"song_list_playing_text_color", theApp.m_app_setting_data.song_list_playing_text_color);
+    ini.WriteInt(L"config", L"bottom_lyric_played_text_color", theApp.m_app_setting_data.bottom_lyric_played_text_color);
+    ini.WriteInt(L"config", L"bottom_lyric_unplayed_text_color", theApp.m_app_setting_data.bottom_lyric_unplayed_text_color);
+    ini.WriteInt(L"config", L"bottom_lyric_next_text_color", theApp.m_app_setting_data.bottom_lyric_next_text_color);
+    ini.WriteInt(L"config", L"lyric_text_color", theApp.m_app_setting_data.lyric_text_color);
+    ini.WriteInt(L"config", L"lyric_playing_text_color", theApp.m_app_setting_data.lyric_playing_text_color);
+    ini.WriteInt(L"config", L"my_player_list_tab_background_color", theApp.m_app_setting_data.my_player_list_tab_background_color);
+    ini.WriteInt(L"config", L"my_player_list_tab_selected_background_color", theApp.m_app_setting_data.my_player_list_tab_selected_background_color);
+    ini.WriteInt(L"config", L"my_player_list_tab_unselected_background_color", theApp.m_app_setting_data.my_player_list_tab_unselected_background_color);
+    ini.WriteInt(L"config", L"my_player_list_tab_selected_text_color", theApp.m_app_setting_data.my_player_list_tab_selected_text_color);
+    ini.WriteInt(L"config", L"my_player_list_tab_unselected_text_color", theApp.m_app_setting_data.my_player_list_tab_unselected_text_color);
+    ini.WriteInt(L"config", L"progress_back_color", theApp.m_app_setting_data.progress_back_color);
+    ini.WriteInt(L"config", L"progress_color", theApp.m_app_setting_data.progress_color);
+    ini.WriteInt(L"config", L"progress_time_color", theApp.m_app_setting_data.progress_time_color);
 
     ini.WriteBool(L"config", L"show_fps", theApp.m_app_setting_data.show_fps);
     ini.WriteBool(L"config", L"show_next_track", theApp.m_app_setting_data.show_next_track);
@@ -845,6 +858,19 @@ void CMusicPlayerDlg::LoadConfig()
     theApp.m_app_setting_data.song_list_text_color = ini.GetInt(L"config", L"song_list_text_color", RGB(192, 192, 192));
     theApp.m_app_setting_data.song_list_custom_playing_text_color = ini.GetBool(L"config", L"song_list_custom_playing_text_color", false);
     theApp.m_app_setting_data.song_list_playing_text_color = ini.GetInt(L"config", L"song_list_playing_text_color", 0);
+    theApp.m_app_setting_data.bottom_lyric_played_text_color = ini.GetInt(L"config", L"bottom_lyric_played_text_color", RGB(0, 249, 26));
+    theApp.m_app_setting_data.bottom_lyric_unplayed_text_color = ini.GetInt(L"config", L"bottom_lyric_unplayed_text_color", RGB(238, 238, 238));
+    theApp.m_app_setting_data.bottom_lyric_next_text_color = ini.GetInt(L"config", L"bottom_lyric_next_text_color", RGB(170, 170, 170));
+    theApp.m_app_setting_data.lyric_text_color = ini.GetInt(L"config", L"lyric_text_color", RGB(136, 136, 136));
+    theApp.m_app_setting_data.lyric_playing_text_color = ini.GetInt(L"config", L"lyric_playing_text_color", RGB(71, 236, 90));
+    theApp.m_app_setting_data.my_player_list_tab_background_color = ini.GetInt(L"config", L"my_player_list_tab_background_color", RGB(45, 48, 55));
+    theApp.m_app_setting_data.my_player_list_tab_selected_background_color = ini.GetInt(L"config", L"my_player_list_tab_selected_background_color", RGB(32, 34, 42));
+    theApp.m_app_setting_data.my_player_list_tab_unselected_background_color = ini.GetInt(L"config", L"my_player_list_tab_unselected_background_color", RGB(45, 48, 55));
+    theApp.m_app_setting_data.my_player_list_tab_selected_text_color = ini.GetInt(L"config", L"my_player_list_tab_selected_text_color", RGB(238, 238, 238));
+    theApp.m_app_setting_data.my_player_list_tab_unselected_text_color = ini.GetInt(L"config", L"my_player_list_tab_unselected_text_color", RGB(170, 170, 170));
+    theApp.m_app_setting_data.progress_back_color = ini.GetInt(L"config", L"progress_back_color", RGB(51, 51, 51));
+    theApp.m_app_setting_data.progress_color = ini.GetInt(L"config", L"progress_color", RGB(119, 119, 119));
+    theApp.m_app_setting_data.progress_time_color = ini.GetInt(L"config", L"progress_time_color", RGB(238, 238, 238));
     theApp.m_media_lib_setting_data.merge_song_different_versions = ini.GetBool(L"media_lib", L"merge_song_different_versions", false);
     theApp.m_media_lib_setting_data.recent_played_range = static_cast<RecentPlayedRange>(ini.GetInt(L"media_lib", L"recent_played_range", 0));
     theApp.m_media_lib_setting_data.display_item = ini.GetInt(L"media_lib", L"display_item", 131);
@@ -1303,8 +1329,37 @@ void CMusicPlayerDlg::FirstRunCreateShortcut()
 void CMusicPlayerDlg::ApplySettings(const COptionsDlg& optionDlg)
 {
     //获取选项设置对话框中的设置数据
-    ApplyLyricsSettings(optionDlg.m_tab1_dlg.m_data, optionDlg.m_tab1_dlg.FontChanged(), optionDlg.m_tab1_dlg.SearchBoxFontChanged());
-    ApplyApperanceSettings(optionDlg.m_tab2_dlg.m_data);
+    LyricSettingData lyric_data{ optionDlg.m_tab1_dlg.m_data };
+    lyric_data.desktop_lyric_data.text_color1 = optionDlg.m_color_dlg.m_lyric_data.desktop_lyric_data.text_color1;
+    lyric_data.desktop_lyric_data.text_color2 = optionDlg.m_color_dlg.m_lyric_data.desktop_lyric_data.text_color2;
+    lyric_data.desktop_lyric_data.text_gradient = optionDlg.m_color_dlg.m_lyric_data.desktop_lyric_data.text_gradient;
+    lyric_data.desktop_lyric_data.highlight_color1 = optionDlg.m_color_dlg.m_lyric_data.desktop_lyric_data.highlight_color1;
+    lyric_data.desktop_lyric_data.highlight_color2 = optionDlg.m_color_dlg.m_lyric_data.desktop_lyric_data.highlight_color2;
+    lyric_data.desktop_lyric_data.highlight_gradient = optionDlg.m_color_dlg.m_lyric_data.desktop_lyric_data.highlight_gradient;
+
+    ApperanceSettingData apperance_data{ optionDlg.m_tab2_dlg.m_data };
+    apperance_data.theme_color = optionDlg.m_color_dlg.m_app_data.theme_color;
+    apperance_data.theme_color_follow_system = optionDlg.m_color_dlg.m_app_data.theme_color_follow_system;
+    apperance_data.song_list_custom_text_color = optionDlg.m_color_dlg.m_app_data.song_list_custom_text_color;
+    apperance_data.song_list_text_color = optionDlg.m_color_dlg.m_app_data.song_list_text_color;
+    apperance_data.song_list_custom_playing_text_color = optionDlg.m_color_dlg.m_app_data.song_list_custom_playing_text_color;
+    apperance_data.song_list_playing_text_color = optionDlg.m_color_dlg.m_app_data.song_list_playing_text_color;
+    apperance_data.bottom_lyric_played_text_color = optionDlg.m_color_dlg.m_app_data.bottom_lyric_played_text_color;
+    apperance_data.bottom_lyric_unplayed_text_color = optionDlg.m_color_dlg.m_app_data.bottom_lyric_unplayed_text_color;
+    apperance_data.bottom_lyric_next_text_color = optionDlg.m_color_dlg.m_app_data.bottom_lyric_next_text_color;
+    apperance_data.lyric_text_color = optionDlg.m_color_dlg.m_app_data.lyric_text_color;
+    apperance_data.lyric_playing_text_color = optionDlg.m_color_dlg.m_app_data.lyric_playing_text_color;
+    apperance_data.my_player_list_tab_background_color = optionDlg.m_color_dlg.m_app_data.my_player_list_tab_background_color;
+    apperance_data.my_player_list_tab_selected_background_color = optionDlg.m_color_dlg.m_app_data.my_player_list_tab_selected_background_color;
+    apperance_data.my_player_list_tab_unselected_background_color = optionDlg.m_color_dlg.m_app_data.my_player_list_tab_unselected_background_color;
+    apperance_data.my_player_list_tab_selected_text_color = optionDlg.m_color_dlg.m_app_data.my_player_list_tab_selected_text_color;
+    apperance_data.my_player_list_tab_unselected_text_color = optionDlg.m_color_dlg.m_app_data.my_player_list_tab_unselected_text_color;
+    apperance_data.progress_back_color = optionDlg.m_color_dlg.m_app_data.progress_back_color;
+    apperance_data.progress_color = optionDlg.m_color_dlg.m_app_data.progress_color;
+    apperance_data.progress_time_color = optionDlg.m_color_dlg.m_app_data.progress_time_color;
+
+    ApplyLyricsSettings(lyric_data, optionDlg.m_tab1_dlg.FontChanged(), optionDlg.m_tab1_dlg.SearchBoxFontChanged());
+    ApplyApperanceSettings(apperance_data);
     ApplyGeneralSettings(optionDlg.m_tab3_dlg.m_data, optionDlg.m_tab3_dlg.IsAutoRunModified(), optionDlg.m_tab3_dlg.m_auto_run);
     ApplyPlaySettings(optionDlg.m_tab4_dlg.m_data);
     ApplyMediaLibSettings(optionDlg.m_media_lib_dlg.m_data);
@@ -1390,7 +1445,20 @@ void CMusicPlayerDlg::ApplyApperanceSettings(const ApperanceSettingData& apperen
                                     || theApp.m_app_setting_data.song_list_custom_text_color != apperence_data.song_list_custom_text_color
                                     || theApp.m_app_setting_data.song_list_text_color != apperence_data.song_list_text_color
                                     || theApp.m_app_setting_data.song_list_custom_playing_text_color != apperence_data.song_list_custom_playing_text_color
-                                    || theApp.m_app_setting_data.song_list_playing_text_color != apperence_data.song_list_playing_text_color };
+                                    || theApp.m_app_setting_data.song_list_playing_text_color != apperence_data.song_list_playing_text_color
+                                    || theApp.m_app_setting_data.bottom_lyric_played_text_color != apperence_data.bottom_lyric_played_text_color
+                                    || theApp.m_app_setting_data.bottom_lyric_unplayed_text_color != apperence_data.bottom_lyric_unplayed_text_color
+                                    || theApp.m_app_setting_data.bottom_lyric_next_text_color != apperence_data.bottom_lyric_next_text_color
+                                    || theApp.m_app_setting_data.lyric_text_color != apperence_data.lyric_text_color
+                                    || theApp.m_app_setting_data.lyric_playing_text_color != apperence_data.lyric_playing_text_color
+                                    || theApp.m_app_setting_data.my_player_list_tab_background_color != apperence_data.my_player_list_tab_background_color
+                                    || theApp.m_app_setting_data.my_player_list_tab_selected_background_color != apperence_data.my_player_list_tab_selected_background_color
+                                    || theApp.m_app_setting_data.my_player_list_tab_unselected_background_color != apperence_data.my_player_list_tab_unselected_background_color
+                                    || theApp.m_app_setting_data.my_player_list_tab_selected_text_color != apperence_data.my_player_list_tab_selected_text_color
+                                    || theApp.m_app_setting_data.my_player_list_tab_unselected_text_color != apperence_data.my_player_list_tab_unselected_text_color
+                                    || theApp.m_app_setting_data.progress_back_color != apperence_data.progress_back_color
+                                    || theApp.m_app_setting_data.progress_color != apperence_data.progress_color
+                                    || theApp.m_app_setting_data.progress_time_color != apperence_data.progress_time_color };
     bool song_list_font_size_changed{ theApp.m_app_setting_data.song_list_font_size != apperence_data.song_list_font_size };
 
     theApp.m_app_setting_data = apperence_data;
@@ -2250,6 +2318,9 @@ void CMusicPlayerDlg::_OnOptionSettings(CWnd* pParent)
         pOptionDlg->m_tab5_dlg.m_hotkey_group = m_hot_key.GetHotKeyGroup();
         pOptionDlg->m_tab5_dlg.m_data = theApp.m_hot_key_setting_data;
         pOptionDlg->m_media_lib_dlg.m_data = theApp.m_media_lib_setting_data;
+        pOptionDlg->m_color_dlg.m_app_data = theApp.m_app_setting_data;
+        pOptionDlg->m_color_dlg.m_lyric_data = theApp.m_lyric_setting_data;
+        pOptionDlg->m_color_dlg.m_pDesktopLyric = &m_desktop_lyric;
 
         int sprctrum_height = theApp.m_app_setting_data.sprctrum_height;        //保存theApp.m_app_setting_data.sprctrum_height的值，如果用户点击了选项对话框的取消，则需要把恢复为原来的
         int background_transparency = theApp.m_app_setting_data.background_transparency;        //同上

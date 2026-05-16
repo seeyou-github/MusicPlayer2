@@ -482,6 +482,26 @@ BOOL CAppearanceSettingDlg::OnInitDialog()
     //	m_follow_system_color_check.EnableWindow(FALSE);		//Win8以下系统禁用此复选按钮
 #endif // !COMPILE_IN_WIN_XP
 
+    const auto hide_moved_color_control = [this](UINT id)
+    {
+        CWnd* pWnd = GetDlgItem(id);
+        if (pWnd != nullptr)
+            pWnd->ShowWindow(SW_HIDE);
+    };
+    for (UINT id : {
+        IDC_TXT_THEME_COLOR_STATIC, IDC_COLOR_STATIC, IDC_PRESET_COLOR_STATIC,
+        IDC_COLOR_STATIC2, IDC_COLOR_STATIC3, IDC_COLOR_STATIC4, IDC_COLOR_STATIC5,
+        IDC_COLOR_STATIC6, IDC_COLOR_STATIC7, IDC_COLOR_STATIC8,
+        IDC_SET_PROGRESS_COLOR_BUTTON, IDC_FOLLOW_SYSTEM_COLOR_CHECK,
+        IDC_TXT_SONG_LIST_TEXT_COLOR_STATIC, IDC_SONG_LIST_TEXT_COLOR_STATIC,
+        IDC_SONG_LIST_TEXT_COLOR_BUTTON, IDC_SONG_LIST_TEXT_COLOR_THEME_CHECK,
+        IDC_TXT_SONG_LIST_PLAYING_TEXT_COLOR_STATIC, IDC_SONG_LIST_PLAYING_TEXT_COLOR_STATIC,
+        IDC_SONG_LIST_PLAYING_TEXT_COLOR_BUTTON, IDC_SONG_LIST_PLAYING_TEXT_COLOR_THEME_CHECK
+        })
+    {
+        hide_moved_color_control(id);
+    }
+
     //
     m_show_album_cover_chk.SetCheck(m_data.show_album_cover);
     m_album_cover_fit_combo.AddString(theApp.m_str_table.LoadText(L"TXT_OPT_APC_COVER_FIT_STRETCH").c_str());

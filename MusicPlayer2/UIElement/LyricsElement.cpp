@@ -2,36 +2,7 @@
 #include "LyricsElement.h"
 #include "Rectangle.h"
 #include "TinyXml2Helper.h"
-#include <cstdlib>
-namespace
-{
-    bool ParseXmlColor(const std::string& str_color, COLORREF& color)
-    {
-        if (str_color.empty())
-            return false;
 
-        std::string color_text = str_color;
-        int base = 10;
-        if (color_text[0] == '#')
-        {
-            color_text.erase(0, 1);
-            base = 16;
-        }
-        else if (color_text.size() > 2 && color_text[0] == '0' && (color_text[1] == 'x' || color_text[1] == 'X'))
-        {
-            color_text.erase(0, 2);
-            base = 16;
-        }
-
-        char* end_ptr{};
-        unsigned long value = std::strtoul(color_text.c_str(), &end_ptr, base);
-        if (end_ptr == color_text.c_str() || *end_ptr != '\0' || value > 0xFFFFFF)
-            return false;
-
-        color = RGB((value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF);
-        return true;
-    }
-}
 void UiElement::Lyrics::Draw()
 {
     CalculateRect();
@@ -71,7 +42,7 @@ void UiElement::Lyrics::Draw()
 
     // Lyrics inside a rectangle use the rectangle background.
     ui->DrawLyrics(rect, lyric_font, lyric_tr_font, (!no_background && !IsParentRectangle()), show_song_info,
-        text_color_set ? &text_color : nullptr, playing_text_color_set ? &playing_text_color : nullptr);
+        &theApp.m_app_setting_data.lyric_text_color, &theApp.m_app_setting_data.lyric_playing_text_color);
 
     Element::Draw();
 }
@@ -112,10 +83,6 @@ void UiElement::Lyrics::FromXmlNode(tinyxml2::XMLElement* xml_node)
     CTinyXml2Helper::GetElementAttributeBool(xml_node, "use_default_font", use_default_font);
     font_size_set = !std::string(CTinyXml2Helper::ElementAttribute(xml_node, "font_size")).empty();
     CTinyXml2Helper::GetElementAttributeInt(xml_node, "font_size", font_size);
-    text_color_set = ParseXmlColor(CTinyXml2Helper::ElementAttribute(xml_node, "text_color"), text_color);
-    playing_text_color_set = ParseXmlColor(CTinyXml2Helper::ElementAttribute(xml_node, "playing_text_color"), playing_text_color);
-    if (!playing_text_color_set)
-        playing_text_color_set = ParseXmlColor(CTinyXml2Helper::ElementAttribute(xml_node, "current_text_color"), playing_text_color);
     CTinyXml2Helper::GetElementAttributeBool(xml_node, "show_song_info", show_song_info);
     CTinyXml2Helper::GetElementAttributeBool(xml_node, "context_menu_enable", context_menu_enable);
 }

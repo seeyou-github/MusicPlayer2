@@ -21,12 +21,6 @@ namespace UiElement
 
     private:
         int font_size{ 16 };
-        bool played_text_color_set{};
-        bool unplayed_text_color_set{};
-        bool next_text_color_set{};
-        COLORREF played_text_color{};
-        COLORREF unplayed_text_color{};
-        COLORREF next_text_color{};
         bool single_line{};
         UIFont custom_lyric_font;
         int custom_font_size{};

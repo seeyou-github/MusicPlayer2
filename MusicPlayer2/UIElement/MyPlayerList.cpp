@@ -11,7 +11,6 @@
 #include "Player.h"
 #include "CRecentList.h"
 #include "MusicPlayerCmdHelper.h"
-#include <cstdlib>
 
 namespace
 {
@@ -224,11 +223,6 @@ void UiElement::MyPlayerList::FromXmlNode(tinyxml2::XMLElement* xml_node)
         CCommon::SetNumRange(m_tab_selected_font_size, 5, 72);
     if (m_tab_unselected_font_size > 0)
         CCommon::SetNumRange(m_tab_unselected_font_size, 5, 72);
-    ParseTabColor(xml_node, "tab_background_color", m_tab_background_color);
-    ParseTabColor(xml_node, "tab_selected_background_color", m_tab_selected_background_color);
-    ParseTabColor(xml_node, "tab_unselected_background_color", m_tab_unselected_background_color);
-    ParseTabColor(xml_node, "tab_selected_text_color", m_tab_selected_text_color);
-    ParseTabColor(xml_node, "tab_unselected_text_color", m_tab_unselected_text_color);
 }
 
 std::wstring UiElement::MyPlayerList::GetItemText(int row, int col)
@@ -325,7 +319,7 @@ void UiElement::MyPlayerList::DrawScrollArea()
         tab_content_rect.right = tab_content_rect.left;
 
     BYTE background_alpha = static_cast<BYTE>(ui->IsDrawBackgroundAlpha() ? ALPHA_CHG(theApp.m_app_setting_data.background_transparency) / 2 : 255);
-    ui->GetDrawer().FillAlphaRect(tab_bar_rect, m_tab_background_color.set ? m_tab_background_color.color : ui->GetUIColors().color_control_bar_back, background_alpha, true);
+    ui->GetDrawer().FillAlphaRect(tab_bar_rect, theApp.m_app_setting_data.my_player_list_tab_background_color, background_alpha, true);
 
     m_tab_rects.clear();
     m_tab_indices.clear();
@@ -863,47 +857,16 @@ int UiElement::MyPlayerList::GetTabFontSize(bool selected) const
 
 COLORREF UiElement::MyPlayerList::GetTabTextColor(bool selected) const
 {
-    const TabColor& color = selected ? m_tab_selected_text_color : m_tab_unselected_text_color;
-    if (color.set)
-        return color.color;
-    return ListTextColor();
+    return selected ? theApp.m_app_setting_data.my_player_list_tab_selected_text_color : theApp.m_app_setting_data.my_player_list_tab_unselected_text_color;
 }
 
 COLORREF UiElement::MyPlayerList::GetTabBackColor(bool selected, bool hover) const
 {
     if (selected)
-        return m_tab_selected_background_color.set ? m_tab_selected_background_color.color : ui->GetUIColors().color_list_selected;
+        return theApp.m_app_setting_data.my_player_list_tab_selected_background_color;
     if (hover)
         return ui->GetUIColors().color_button_hover;
-    return m_tab_unselected_background_color.set ? m_tab_unselected_background_color.color : ui->GetUIColors().color_back;
-}
-
-bool UiElement::MyPlayerList::ParseTabColor(tinyxml2::XMLElement* xml_node, const char* attr_name, TabColor& color)
-{
-    std::string str_color = CTinyXml2Helper::ElementAttribute(xml_node, attr_name);
-    if (str_color.empty())
-        return false;
-
-    int base = 10;
-    if (str_color[0] == '#')
-    {
-        str_color.erase(0, 1);
-        base = 16;
-    }
-    else if (str_color.size() > 2 && str_color[0] == '0' && (str_color[1] == 'x' || str_color[1] == 'X'))
-    {
-        str_color.erase(0, 2);
-        base = 16;
-    }
-
-    char* end_ptr{};
-    unsigned long value = std::strtoul(str_color.c_str(), &end_ptr, base);
-    if (end_ptr == str_color.c_str() || *end_ptr != '\0' || value > 0xFFFFFF)
-        return false;
-
-    color.color = RGB((value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF);
-    color.set = true;
-    return true;
+    return theApp.m_app_setting_data.my_player_list_tab_unselected_background_color;
 }
 
 void UiElement::MyPlayerList::ShowTabContextMenu(int index)

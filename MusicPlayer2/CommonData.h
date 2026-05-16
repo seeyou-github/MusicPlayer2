@@ -280,6 +280,19 @@ struct ApperanceSettingData
     COLORREF song_list_text_color{ RGB(192, 192, 192) }; //歌曲列表文字颜色
     bool song_list_custom_playing_text_color{ false }; //歌曲列表正在播放歌曲是否使用自定义文字颜色
     COLORREF song_list_playing_text_color{}; //歌曲列表正在播放歌曲文字颜色
+    COLORREF bottom_lyric_played_text_color{ RGB(0, 249, 26) }; //底部播放控制栏当前歌词文字颜色
+    COLORREF bottom_lyric_unplayed_text_color{ RGB(238, 238, 238) }; //底部播放控制栏未播放歌词文字颜色
+    COLORREF bottom_lyric_next_text_color{ RGB(170, 170, 170) }; //底部播放控制栏下一句歌词文字颜色
+    COLORREF lyric_text_color{ RGB(136, 136, 136) }; //播放详情页歌词普通文字颜色
+    COLORREF lyric_playing_text_color{ RGB(71, 236, 90) }; //播放详情页歌词正在播放文字颜色
+    COLORREF my_player_list_tab_background_color{ RGB(45, 48, 55) }; //myPlayerList标签栏背景色
+    COLORREF my_player_list_tab_selected_background_color{ RGB(32, 34, 42) }; //myPlayerList选中标签背景色
+    COLORREF my_player_list_tab_unselected_background_color{ RGB(45, 48, 55) }; //myPlayerList未选中标签背景色
+    COLORREF my_player_list_tab_selected_text_color{ RGB(238, 238, 238) }; //myPlayerList选中标签文字颜色
+    COLORREF my_player_list_tab_unselected_text_color{ RGB(170, 170, 170) }; //myPlayerList未选中标签文字颜色
+    COLORREF progress_back_color{ RGB(51, 51, 51) }; //进度条背景色
+    COLORREF progress_color{ RGB(119, 119, 119) }; //进度条前景色
+    COLORREF progress_time_color{ RGB(238, 238, 238) }; //进度条时间文字颜色
 
     bool show_window_frame{ true };     //显示标准窗口边框
     bool show_minimize_btn_in_titlebar{ true };     //是否在标题栏显示“最小化”按钮

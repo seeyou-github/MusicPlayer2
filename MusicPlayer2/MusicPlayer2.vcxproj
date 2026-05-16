@@ -441,6 +441,7 @@
     <ClInclude Include="WinVersionHelper.h" />
     <ClInclude Include="FilePathHelper.h" />
     <ClInclude Include="ColorConvert.h" />
+    <ClInclude Include="ColorSettingDlg.h" />
     <ClInclude Include="ColorStatic.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="CortanaLyric.h" />
@@ -512,6 +513,7 @@
     <ClCompile Include="CUIDrawer.cpp" />
     <ClCompile Include="CMainDialogBase.cpp" />
     <ClCompile Include="ColorStaticEx.cpp" />
+    <ClCompile Include="ColorSettingDlg.cpp" />
     <ClCompile Include="CueFile.cpp" />
     <ClCompile Include="EditableListBox.cpp" />
     <ClCompile Include="EditStringListDlg.cpp" />

@@ -307,6 +307,22 @@ BOOL CLyricSettingsDlg::OnInitDialog()
     EnableControl();
     EnableControlForDesktopLyric();
 
+    const auto hide_moved_color_control = [this](UINT id)
+    {
+        CWnd* pWnd = GetDlgItem(id);
+        if (pWnd != nullptr)
+            pWnd->ShowWindow(SW_HIDE);
+    };
+    for (UINT id : {
+        IDC_TXT_OPT_LRC_DESKTOP_LRC_COLOR_TEXT_STATIC, IDC_TEXT_COLOR1_STATIC,
+        IDC_TEXT_COLOR2_STATIC, IDC_TEXT_GRADIENT_COMBO,
+        IDC_TXT_OPT_LRC_DESKTOP_LRC_COLOR_HIGHLIGHT_STATIC, IDC_HIGHLIGHT_COLOR1_STATIC,
+        IDC_HIGHLIGHT_COLOR2_STATIC, IDC_HIGHLIGHT_GRADIENT_COMBO, IDC_DEFAULT_STYLE
+        })
+    {
+        hide_moved_color_control(id);
+    }
+
     m_data.lyric_path = L"AppData\\cache\\lyrices\\";
     m_lyric_dir_edit.SetWindowText(theApp.m_lyric_setting_data.AbsoluteLyricPath().c_str());
     m_lyric_dir_edit.EnableBrowseButton(FALSE);

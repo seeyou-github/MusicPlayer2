@@ -21,19 +21,10 @@ namespace UiElement
         CRect GetProgressRect() const { return btn.rect; }
 
     protected:
-        struct CustomColor
-        {
-            bool set{};
-            COLORREF color{};
-        };
-
         bool show_play_time{};
         bool play_time_both_side{};
         bool auto_color{};
         int bar_height{};
-        CustomColor progress_back_color;
-        CustomColor progress_color;
-        CustomColor time_color;
         CPlayerUIBase::UIButton btn;
 
     private:

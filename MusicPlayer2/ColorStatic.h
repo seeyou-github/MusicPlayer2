@@ -12,6 +12,7 @@ public:
 	virtual ~CColorStatic();
 
 	void SetFillColor(COLORREF fill_color);		//设置要填充的背景色
+    COLORREF GetFillColor() const { return m_fill_color; }
 
 protected:
 	COLORREF m_fill_color{ RGB(255, 255,255) };

@@ -41,6 +41,9 @@
     <Filter Include="对话框类\选项设置对话框\HotKeySettingDlg">
       <UniqueIdentifier>{d20e652e-321b-4c3b-a242-e61f5aec1643}</UniqueIdentifier>
     </Filter>
+    <Filter Include="对话框类\选项设置对话框\ColorSettingDlg">
+      <UniqueIdentifier>{33ed7017-48f2-4b85-a14d-3829314c0e94}</UniqueIdentifier>
+    </Filter>
     <Filter Include="对话框类\FindDlg">
       <UniqueIdentifier>{5d3a37b2-f1d5-4277-b14c-4bbde14e0a33}</UniqueIdentifier>
     </Filter>
@@ -491,6 +494,9 @@
     </ClInclude>
     <ClInclude Include="AppearanceSettingDlg.h">
       <Filter>对话框类\选项设置对话框\AppearanceSettingDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorSettingDlg.h">
+      <Filter>对话框类\选项设置对话框\ColorSettingDlg</Filter>
     </ClInclude>
     <ClInclude Include="DataSettingsDlg.h">
       <Filter>对话框类\选项设置对话框\DataSettingsDlg</Filter>
@@ -1204,6 +1210,9 @@
     </ClCompile>
     <ClCompile Include="AppearanceSettingDlg.cpp">
       <Filter>对话框类\选项设置对话框\AppearanceSettingDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorSettingDlg.cpp">
+      <Filter>对话框类\选项设置对话框\ColorSettingDlg</Filter>
     </ClCompile>
     <ClCompile Include="DataSettingsDlg.cpp">
       <Filter>对话框类\选项设置对话框\DataSettingsDlg</Filter>
