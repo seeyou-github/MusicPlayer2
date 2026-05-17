@@ -1,8 +1,8 @@
 # 魔改版
 
- ![loading-ag-214](.\pic\a.jpg)
+ ![loading-ag-214](./pic/a.jpg)
 
-![loading-ag-216](.\pic\b.jpg)
+![loading-ag-216](./pic/b.jpg)
 
 
 
