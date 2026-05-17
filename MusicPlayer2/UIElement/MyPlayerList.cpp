@@ -124,53 +124,66 @@ bool UiElement::MyPlayerList::RButtonUp(CPoint point)
                     break;
                 }
             }
+            const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
+            CMenu sub_menu;
+            sub_menu.CreatePopupMenu();
+            vector<int> target_tabs;
+            for (int i{}; i < static_cast<int>(folders.size()); ++i)
+            {
+                if (i == m_selected_tab || !IsFolderTab(i))
+                    continue;
+                target_tabs.push_back(i);
+                sub_menu.AppendMenuW(MF_STRING, MOVE_TO_FOLDER_TAB_COMMAND_BASE + static_cast<UINT>(target_tabs.size() - 1), GetFolderTabName(i).c_str());
+            }
+            if (target_tabs.empty())
+                sub_menu.AppendMenuW(MF_STRING | MF_GRAYED, MOVE_TO_FOLDER_TAB_COMMAND_BASE, L"-");
+
+            CString original_text;
+            bool appended_move_menu{};
+            HMENU sub_menu_handle = sub_menu.Detach();
             if (move_menu_pos >= 0)
             {
-                const auto& folders = theApp.m_media_lib_setting_data.folder_tab_paths;
-                CMenu sub_menu;
-                sub_menu.CreatePopupMenu();
-                vector<int> target_tabs;
-                for (int i{}; i < static_cast<int>(folders.size()); ++i)
-                {
-                    if (i == m_selected_tab || !IsFolderTab(i))
-                        continue;
-                    target_tabs.push_back(i);
-                    sub_menu.AppendMenuW(MF_STRING, MOVE_TO_FOLDER_TAB_COMMAND_BASE + static_cast<UINT>(target_tabs.size() - 1), GetFolderTabName(i).c_str());
-                }
-                if (target_tabs.empty())
-                    sub_menu.AppendMenuW(MF_STRING | MF_GRAYED, MOVE_TO_FOLDER_TAB_COMMAND_BASE, L"-");
-
-                CString original_text;
                 menu->GetMenuString(move_menu_pos, original_text, MF_BYPOSITION);
-                HMENU sub_menu_handle = sub_menu.Detach();
                 menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu_handle), theApp.m_str_table.LoadText(L"TXT_MOVE_FILE_TO").c_str());
-
-                CPoint cursor_pos;
-                GetCursorPos(&cursor_pos);
-                CWnd* cmd_reciver = GetCmdRecivedWnd();
-                UINT command = menu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY, cursor_pos.x, cursor_pos.y, cmd_reciver != nullptr ? cmd_reciver : theApp.m_pMainWnd);
-                menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_STRING, ID_MOVE_FILE_TO, original_text);
-                ::DestroyMenu(sub_menu_handle);
-                if (command >= MOVE_TO_FOLDER_TAB_COMMAND_BASE && command < MOVE_TO_FOLDER_TAB_COMMAND_BASE + target_tabs.size())
-                {
-                    MoveFilesToFolderTab(target_tabs[command - MOVE_TO_FOLDER_TAB_COMMAND_BASE]);
-                }
-                else if (command != 0)
-                {
-                    if (cmd_reciver != nullptr)
-                        cmd_reciver->SendMessage(WM_COMMAND, command);
-                    else
-                    {
-                        CUIWindowCmdHelper helper(this);
-                        helper.OnUiCommand(command);
-                    }
-                }
-                rtn = true;
             }
             else
             {
-                rtn = TrackList::RButtonUp(point);
+                appended_move_menu = true;
+                if (menu_count > 0)
+                    menu->AppendMenuW(MF_SEPARATOR);
+                menu->AppendMenuW(MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu_handle), theApp.m_str_table.LoadText(L"TXT_MOVE_FILE_TO").c_str());
             }
+
+            CPoint cursor_pos;
+            GetCursorPos(&cursor_pos);
+            CWnd* cmd_reciver = GetCmdRecivedWnd();
+            UINT command = menu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY, cursor_pos.x, cursor_pos.y, cmd_reciver != nullptr ? cmd_reciver : theApp.m_pMainWnd);
+            if (move_menu_pos >= 0)
+            {
+                menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_STRING, ID_MOVE_FILE_TO, original_text);
+            }
+            else if (appended_move_menu)
+            {
+                menu->DeleteMenu(menu->GetMenuItemCount() - 1, MF_BYPOSITION);
+                if (menu_count > 0)
+                    menu->DeleteMenu(menu->GetMenuItemCount() - 1, MF_BYPOSITION);
+            }
+            ::DestroyMenu(sub_menu_handle);
+            if (command >= MOVE_TO_FOLDER_TAB_COMMAND_BASE && command < MOVE_TO_FOLDER_TAB_COMMAND_BASE + target_tabs.size())
+            {
+                MoveFilesToFolderTab(target_tabs[command - MOVE_TO_FOLDER_TAB_COMMAND_BASE]);
+            }
+            else if (command != 0)
+            {
+                if (cmd_reciver != nullptr)
+                    cmd_reciver->SendMessage(WM_COMMAND, command);
+                else
+                {
+                    CUIWindowCmdHelper helper(this);
+                    helper.OnUiCommand(command);
+                }
+            }
+            rtn = true;
         }
     }
     else
