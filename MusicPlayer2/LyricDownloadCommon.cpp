@@ -12,25 +12,7 @@ CLyricDownloadCommon::~CLyricDownloadCommon()
 {
 }
 
-static bool HasExactLine(const wstring& lyric_str, const wchar_t* target)
-{
-    size_t start{};
-    while (start <= lyric_str.size())
-    {
-        size_t end = lyric_str.find_first_of(L"\r\n", start);
-        wstring line = lyric_str.substr(start, end == wstring::npos ? wstring::npos : end - start);
-        if (line == target)
-            return true;
-        if (end == wstring::npos)
-            break;
-        start = lyric_str.find_first_not_of(L"\r\n", end);
-        if (start == wstring::npos)
-            break;
-    }
-    return false;
-}
-
-static int CountTimedLyricLines(const wstring& lyric_str)
+static int CountNonEmptyLyricLines(const wstring& lyric_str)
 {
     int count{};
     size_t start{};
@@ -38,11 +20,8 @@ static int CountTimedLyricLines(const wstring& lyric_str)
     {
         size_t end = lyric_str.find_first_of(L"\r\n", start);
         wstring line = lyric_str.substr(start, end == wstring::npos ? wstring::npos : end - start);
-        size_t time_tag_end = line.find(L']');
-        if (!line.empty() && line.front() == L'[' && time_tag_end != wstring::npos)
-        {
+        if (line.find_first_not_of(L" \t") != wstring::npos)
             ++count;
-        }
         if (end == wstring::npos)
             break;
         start = lyric_str.find_first_not_of(L"\r\n", end);
@@ -54,19 +33,10 @@ static int CountTimedLyricLines(const wstring& lyric_str)
 
 bool CLyricDownloadCommon::ShouldSkipSavingLyric(const wstring& lyric_str)
 {
-    if (HasExactLine(lyric_str, L"[id:]")
-        && HasExactLine(lyric_str, L"[ti:]")
-        && HasExactLine(lyric_str, L"[ar:]")
-        && HasExactLine(lyric_str, L"[al:]"))
-    {
-        return true;
-    }
-
     if (lyric_str.find(L"纯音乐，请欣赏") != wstring::npos)
         return true;
 
-    int timed_lyric_line_count{ CountTimedLyricLines(lyric_str) };
-    if (timed_lyric_line_count > 0 && timed_lyric_line_count <= 3)
+    if (CountNonEmptyLyricLines(lyric_str) <= 8)
         return true;
 
     return false;
