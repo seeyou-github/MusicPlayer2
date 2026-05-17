@@ -778,8 +778,8 @@ void CMusicPlayerDlg::LoadConfig()
     theApp.m_general_setting_data.auto_download_only_tag_full = ini.GetBool(L"general", L"auto_download_only_tag_full", 1);
     theApp.m_general_setting_data.save_lyric_to_song_folder = ini.GetBool(L"general", L"save_lyric_to_song_folder", false);
     theApp.m_general_setting_data.save_album_to_song_folder = ini.GetBool(L"general", L"save_album_to_song_folder", false);
-    theApp.m_general_setting_data.auto_download_lyric_to_audio_file = ini.GetBool(L"general", L"auto_download_lyric_to_audio_file", false);
-    theApp.m_general_setting_data.auto_download_cover_to_audio_file = ini.GetBool(L"general", L"auto_download_cover_to_audio_file", false);
+    theApp.m_general_setting_data.auto_download_lyric_to_audio_file = ini.GetBool(L"general", L"auto_download_lyric_to_audio_file", true);
+    theApp.m_general_setting_data.auto_download_cover_to_audio_file = ini.GetBool(L"general", L"auto_download_cover_to_audio_file", true);
     theApp.m_general_setting_data.download_lyric_text_and_translation_in_same_line = ini.GetBool(L"general", L"download_lyric_text_and_translation_in_same_line", false);
     theApp.m_play_setting_data.sf2_path = ini.GetString(L"general", L"sf2_path", L"");
     theApp.m_play_setting_data.midi_use_inner_lyric = ini.GetBool(L"general", L"midi_use_inner_lyric", 0);

@@ -64,10 +64,12 @@ bool CDataSettingsDlg::InitializeControls()
     SetDlgItemTextW(IDC_LYRIC_AUTO_DOWNLOAD_CHECK, temp.c_str());
     temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_LYRIC_SAVE_SEL");
     SetDlgItemTextW(IDC_TXT_OPT_DATA_AUTO_DL_LYRIC_SAVE_SEL_STATIC, temp.c_str());
-    temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_LYRIC_SAVE_SONG_DIR");
-    SetDlgItemTextW(IDC_SAVE_TO_SONG_FOLDER, temp.c_str());
+    temp = theApp.m_str_table.LoadText(L"TXT_LYRIC_DL_SAVE_TO_AUDIO_FILE");
+    SetDlgItemTextW(IDC_AUTO_DOWNLOAD_LYRIC_TO_AUDIO_FILE, temp.c_str());
     temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_LYRIC_SAVE_LYRIC_DIR");
     SetDlgItemTextW(IDC_SAVE_TO_LYRIC_FOLDER, temp.c_str());
+    temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_LYRIC_SAVE_SONG_DIR");
+    SetDlgItemTextW(IDC_SAVE_TO_SONG_FOLDER, temp.c_str());
 
     SetDlgControlText(IDC_DOWN_LOAD_LYRIC_TRANSLATION_FORMAT_STATIC, L"TXT_OPT_DATA_DL_LYRIC_TRANSLATION_FORMAT_SEL");
     SetDlgControlText(IDC_LYRIC_AND_TRANSLATION_IN_SAME_LINE_RADIO, L"TXT_OPT_DATA_DL_LYRIC_TRANSLATION_FORMAT_SAME_LINE");
@@ -77,10 +79,12 @@ bool CDataSettingsDlg::InitializeControls()
     SetDlgItemTextW(IDC_COVER_AUTO_DOWNLOAD_CHECK, temp.c_str());
     temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_COVER_SAVE_SEL");
     SetDlgItemTextW(IDC_TXT_OPT_DATA_AUTO_DL_COVER_SAVE_SEL_STATIC, temp.c_str());
-    temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_COVER_SAVE_SONG_DIR");
-    SetDlgItemTextW(IDC_SAVE_TO_SONG_FOLDER3, temp.c_str());
+    temp = theApp.m_str_table.LoadText(L"TXT_COVER_DL_SAVE_TO_AUDIO_FILE");
+    SetDlgItemTextW(IDC_AUTO_DOWNLOAD_COVER_TO_AUDIO_FILE, temp.c_str());
     temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_COVER_SAVE_COVER_DIR");
     SetDlgItemTextW(IDC_SAVE_TO_ALBUM_FOLDER3, temp.c_str());
+    temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_COVER_SAVE_SONG_DIR");
+    SetDlgItemTextW(IDC_SAVE_TO_SONG_FOLDER3, temp.c_str());
     temp = theApp.m_str_table.LoadText(L"TXT_OPT_DATA_AUTO_DL_ONLY_WHEN_TAG_FULL");
     SetDlgItemTextW(IDC_DOWNLOAD_WHEN_TAG_FULL_CHECK, temp.c_str());
 
@@ -203,11 +207,13 @@ BOOL CDataSettingsDlg::OnInitDialog()
         ((CButton*)GetDlgItem(IDC_EXIT_PROGRAM_RADIO))->SetCheck(TRUE);
     EnableDlgCtrl(IDC_MINIMIZE_TO_NOTIFY_RADIO, theApp.m_app_setting_data.show_notify_icon);
 
-    if (m_data.save_lyric_to_song_folder)
+    CheckDlgButton(IDC_AUTO_DOWNLOAD_LYRIC_TO_AUDIO_FILE, m_data.auto_download_lyric_to_audio_file);
+    if (m_data.auto_download_lyric_to_audio_file)
+        ((CButton*)GetDlgItem(IDC_AUTO_DOWNLOAD_LYRIC_TO_AUDIO_FILE))->SetCheck(TRUE);
+    else if (m_data.save_lyric_to_song_folder)
         ((CButton*)GetDlgItem(IDC_SAVE_TO_SONG_FOLDER))->SetCheck(TRUE);
     else
         ((CButton*)GetDlgItem(IDC_SAVE_TO_LYRIC_FOLDER))->SetCheck(TRUE);
-    CheckDlgButton(IDC_AUTO_DOWNLOAD_LYRIC_TO_AUDIO_FILE, m_data.auto_download_lyric_to_audio_file);
 
     //判断歌词文件夹是否存在
     bool lyric_path_exist = CCommon::FolderExist(theApp.m_lyric_setting_data.AbsoluteLyricPath());
@@ -220,11 +226,13 @@ BOOL CDataSettingsDlg::OnInitDialog()
     }
     
     // 设置封面存储位置选项
-    if (m_data.save_album_to_song_folder)
+    CheckDlgButton(IDC_AUTO_DOWNLOAD_COVER_TO_AUDIO_FILE, m_data.auto_download_cover_to_audio_file);
+    if (m_data.auto_download_cover_to_audio_file)
+        ((CButton*)GetDlgItem(IDC_AUTO_DOWNLOAD_COVER_TO_AUDIO_FILE))->SetCheck(TRUE);
+    else if (m_data.save_album_to_song_folder)
         ((CButton*)GetDlgItem(IDC_SAVE_TO_SONG_FOLDER3))->SetCheck(TRUE);
     else
         ((CButton*)GetDlgItem(IDC_SAVE_TO_ALBUM_FOLDER3))->SetCheck(TRUE);
-    CheckDlgButton(IDC_AUTO_DOWNLOAD_COVER_TO_AUDIO_FILE, m_data.auto_download_cover_to_audio_file);
 
     // 判断封面文件夹是否存在
     bool album_path_exist = CCommon::FolderExist(theApp.m_app_setting_data.AbsoluteAlbumCoverPath());

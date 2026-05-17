@@ -512,16 +512,16 @@ BEGIN
     CONTROL         "Minimize to notification area",IDC_MINIMIZE_TO_NOTIFY_RADIO,
                     "Button",BS_AUTORADIOBUTTON | WS_GROUP,157,74,146,8
     CONTROL         "Exit the program",IDC_EXIT_PROGRAM_RADIO,"Button",BS_AUTORADIOBUTTON,157,86,146,8
-    GROUPBOX        "Automatic Download Settings",IDC_TXT_OPT_DATA_DL_SETTING_STATIC,7,103,302,144
+    GROUPBOX        "Automatic Download Settings",IDC_TXT_OPT_DATA_DL_SETTING_STATIC,7,103,302,159
     CONTROL         "Automatically download when lyric is not exist",IDC_LYRIC_AUTO_DOWNLOAD_CHECK,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,114,289,8
     LTEXT           "Automatically Download Lyrics Save Location:",IDC_TXT_OPT_DATA_AUTO_DL_LYRIC_SAVE_SEL_STATIC,14,125,289,8
-    CONTROL         "Save to lyrics directory",IDC_SAVE_TO_LYRIC_FOLDER,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,21,135,119,8
-    CONTROL         "Save to the same directory as the song",IDC_SAVE_TO_SONG_FOLDER,
-                    "Button",BS_AUTORADIOBUTTON,150,135,153,8
     CONTROL         "Save to audio file when online lyrics is matched",IDC_AUTO_DOWNLOAD_LYRIC_TO_AUDIO_FILE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,145,282,10
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,21,135,282,10
+    CONTROL         "Save to lyrics directory",IDC_SAVE_TO_LYRIC_FOLDER,
+                    "Button",BS_AUTORADIOBUTTON,21,147,119,8
+    CONTROL         "Save to the same directory as the song",IDC_SAVE_TO_SONG_FOLDER,
+                    "Button",BS_AUTORADIOBUTTON,150,147,153,8
     LTEXT           "Download Lyrics Translation Format:",IDC_DOWN_LOAD_LYRIC_TRANSLATION_FORMAT_STATIC,14,146,289,8
     CONTROL         "Lyric text and translation in the &same line",IDC_LYRIC_AND_TRANSLATION_IN_SAME_LINE_RADIO,
                     "Button",BS_AUTORADIOBUTTON | WS_GROUP,21,158,282,10
@@ -530,21 +530,21 @@ BEGIN
     CONTROL         "Automatically download when album cover is not exist",IDC_COVER_AUTO_DOWNLOAD_CHECK,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,181,289,8
     LTEXT           "Automatically Download Album Cover Save Location:",IDC_TXT_OPT_DATA_AUTO_DL_COVER_SAVE_SEL_STATIC,14,191,289,8
-    CONTROL         "Save to album cover directory",IDC_SAVE_TO_ALBUM_FOLDER3,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,21,201,119,8
-    CONTROL         "Save to the same directory as the song",IDC_SAVE_TO_SONG_FOLDER3,
-                    "Button",BS_AUTORADIOBUTTON,150,201,153,8
     CONTROL         "Save to audio file when online album cover is matched",IDC_AUTO_DOWNLOAD_COVER_TO_AUDIO_FILE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,211,282,10
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,21,201,282,10
+    CONTROL         "Save to album cover directory",IDC_SAVE_TO_ALBUM_FOLDER3,
+                    "Button",BS_AUTORADIOBUTTON,21,213,119,8
+    CONTROL         "Save to the same directory as the song",IDC_SAVE_TO_SONG_FOLDER3,
+                    "Button",BS_AUTORADIOBUTTON,150,213,153,8
     CONTROL         "Download automatically only when the song information is complete",IDC_DOWNLOAD_WHEN_TAG_FULL_CHECK,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,223,289,8
-    GROUPBOX        "Operation Settings",IDC_TXT_OPERATION_SETTINGS_STATIC,7,251,302,29
-    CONTROL         "Global mouse wheel volume adjustment",IDC_GLOBAL_MOUSE_WHEEL_VOLUME_ADJUSTMENT_CHECK,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,264,289,10
-    LTEXT           "Lyrics and album cover download service:",IDC_TXT_OPT_LYRICS_AND_COVER_DL_SERVICE_STATIC,14,222,289,8
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,225,289,8
+    LTEXT           "Lyrics and album cover download service:",IDC_TXT_OPT_LYRICS_AND_COVER_DL_SERVICE_STATIC,14,235,289,8
     CONTROL         "NetEase cloud music",IDC_NETEASE_CLOUD_MUSIC_RADIO,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,21,233,119,8
-    CONTROL         "QQ music",IDC_QQ_MUSIC_RADIO,"Button",BS_AUTORADIOBUTTON,150,233,153,8
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,21,246,119,8
+    CONTROL         "QQ music",IDC_QQ_MUSIC_RADIO,"Button",BS_AUTORADIOBUTTON,150,246,153,8
+    GROUPBOX        "Operation Settings",IDC_TXT_OPERATION_SETTINGS_STATIC,7,260,302,29
+    CONTROL         "Global mouse wheel volume adjustment",IDC_GLOBAL_MOUSE_WHEEL_VOLUME_ADJUSTMENT_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,273,289,10
 END
 
 IDD_EQUALIZER_DIALOG DIALOGEX 0, 0, 299, 107
