@@ -28,6 +28,11 @@ namespace
     {
         return (std::max)(std::abs(a.x - b.x), std::abs(a.y - b.y));
     }
+
+    const std::wstring& GetMoveFileToMenuText()
+    {
+        return theApp.m_str_table.LoadMenuText(MenuMgr::GetMenuNameStr(MenuMgr::PlaylistToolBarEditMenu), L"ID_MOVE_FILE_TO");
+    }
 }
 
 void UiElement::MyPlayerList::Draw()
@@ -144,14 +149,14 @@ bool UiElement::MyPlayerList::RButtonUp(CPoint point)
             if (move_menu_pos >= 0)
             {
                 menu->GetMenuString(move_menu_pos, original_text, MF_BYPOSITION);
-                menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu_handle), theApp.m_str_table.LoadText(L"TXT_MOVE_FILE_TO").c_str());
+                menu->ModifyMenuW(move_menu_pos, MF_BYPOSITION | MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu_handle), GetMoveFileToMenuText().c_str());
             }
             else
             {
                 appended_move_menu = true;
                 if (menu_count > 0)
                     menu->AppendMenuW(MF_SEPARATOR);
-                menu->AppendMenuW(MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu_handle), theApp.m_str_table.LoadText(L"TXT_MOVE_FILE_TO").c_str());
+                menu->AppendMenuW(MF_POPUP, reinterpret_cast<UINT_PTR>(sub_menu_handle), GetMoveFileToMenuText().c_str());
             }
 
             CPoint cursor_pos;
