@@ -255,6 +255,7 @@ protected:
 public:
     void SettingsChanged();     //当选项设置更改时调用
     void SaveConfigNow() { SaveConfig(); }
+    void EnsureDeviceManagerInitialized();
 
     //应用歌词设置
     void ApplyLyricsSettings(const LyricSettingData& lyrics_data, bool lyrics_font_changed = false, bool search_box_font_changed = false);

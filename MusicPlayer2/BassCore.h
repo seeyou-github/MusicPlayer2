@@ -81,6 +81,7 @@ private:
     static void CALLBACK MidiEndSync(HSYNC handle, DWORD channel, DWORD data, void *user);
 
     void GetMidiPosition();
+    void EnsureMidiSoundFontLoaded();
     void SetFXHandle();		//设置音效句柄
     void RemoveFXHandle();		//移除音效句柄
 
@@ -93,6 +94,7 @@ private:
     BASS_CHANNELINFO m_channel_info{};	//音频通道的信息
     int m_bitrate{};
     bool m_is_midi{};
+    bool m_midi_sound_font_checked{};
     MidiInfo m_midi_info{};
     int m_error_code{};
     int m_last_playing_state{ PLAYING_STATE_DEFAULT_VALUE };     //保存上一次的播放状态（BASS_ChannelIsActive的返回值）

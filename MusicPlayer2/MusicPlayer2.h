@@ -128,6 +128,7 @@ public:
     HICON GetNotifyIncon(int index);
 
     bool IsScintillaLoaded() const;
+    bool EnsureScintillaLoaded();
 
     LastFM m_lastfm;
     void LoadLastFMData();
@@ -145,6 +146,7 @@ public:
 
 private:
     void LoadSongData();
+    static UINT LoadSongDataThreadFunc(LPVOID lpParam);
 
     static LRESULT CALLBACK MultiMediaKeyHookProc(int nCode, WPARAM wParam, LPARAM lParam);
     static UINT CheckUpdateThreadFunc(LPVOID lpParam);	//启动时检查更新线程函数
@@ -166,6 +168,7 @@ private:
     HMODULE m_hScintillaModule{};
 
     CWinThread* m_media_lib_update_thread{};
+    CWinThread* m_song_data_load_thread{};
 
     std::unique_ptr<CLyricDownloadCommon> m_lyric_download;
 

@@ -1443,11 +1443,22 @@ void CMusicPlayerDlg::SettingsChanged()
         pCurUi->HideTooltip();
 }
 
+void CMusicPlayerDlg::EnsureDeviceManagerInitialized()
+{
+    if (devicesManager == nullptr)
+    {
+        devicesManager = new CDevicesManager;
+        devicesManager->InitializeDeviceEnumerator();
+    }
+}
+
 void CMusicPlayerDlg::ApplyLyricsSettings(const LyricSettingData& lyrics_data, bool lyrics_font_changed, bool search_box_font_changed)
 {
     if (theApp.m_lyric_setting_data.cortana_info_enable == true && lyrics_data.cortana_info_enable == false)    //如果在选项中关闭了“在Cortana搜索框中显示歌词”的选项，则重置Cortana搜索框的文本
         m_cortana_lyric.ResetCortanaText();
     m_cortana_lyric.SetEnable(lyrics_data.cortana_info_enable);
+    if (!theApp.m_lyric_setting_data.cortana_info_enable && lyrics_data.cortana_info_enable)
+        m_cortana_lyric.Init();
     bool use_inner_lyric_changed{ theApp.m_lyric_setting_data.use_inner_lyric_first != lyrics_data.use_inner_lyric_first };
     bool search_box_background_transparent_changed{ theApp.m_lyric_setting_data.cortana_transparent_color != lyrics_data.cortana_transparent_color };
 
@@ -2527,6 +2538,8 @@ BOOL CMusicPlayerDlg::OnInitDialog()
 {
     //载入设置
     LoadConfig();
+    if (theApp.m_media_lib_setting_data.enable_lastfm)
+        theApp.LoadLastFMData();
     LoadUiData();
 
     theApp.InitLyricDownload();
@@ -2580,7 +2593,7 @@ BOOL CMusicPlayerDlg::OnInitDialog()
     //只有Win10以上的系统才能在Cortana搜索框中显示歌词
     if (!CWinVersionHelper::IsWindows10OrLater())
         theApp.m_lyric_setting_data.cortana_info_enable = false;
-    m_cortana_lyric.SetEnable(CWinVersionHelper::IsWindows10OrLater());
+    m_cortana_lyric.SetEnable(theApp.m_lyric_setting_data.cortana_info_enable);
 
     //设置桌面歌词窗口不透明度
     SetDesptopLyricTransparency();
@@ -2653,8 +2666,7 @@ BOOL CMusicPlayerDlg::OnInitDialog()
 #endif
 
     //注册接收音频设备变化通知回调的IMMNotificationClient接口
-    devicesManager = new CDevicesManager;
-    devicesManager->InitializeDeviceEnumerator();
+    devicesManager = nullptr;
 
     // 注册休眠/睡眠状态唤醒事件通知
     if (CWinVersionHelper::IsWindows8OrLater())
@@ -2675,7 +2687,8 @@ BOOL CMusicPlayerDlg::OnInitDialog()
     m_findDlg.LoadChildrenConfig();
 
     //获取Cortana歌词
-    m_cortana_lyric.Init();
+    if (theApp.m_lyric_setting_data.cortana_info_enable)
+        m_cortana_lyric.Init();
 
     //初始化桌面歌词
     m_desktop_lyric.Create();
@@ -2878,10 +2891,12 @@ void CMusicPlayerDlg::OnTimer(UINT_PTR nIDEvent)
             if (m_cmdLine.empty())      //没有有通过命令行打开文件
             {
                 CPlayer::GetInstance().Create();
+                EnsureDeviceManagerInitialized();
             }
             else if (m_cmdLine.find(L"RestartByRestartManager") != wstring::npos)       //如果命令行参数中有RestartByRestartManager，则忽略命令行参数
             {
                 CPlayer::GetInstance().Create();
+                EnsureDeviceManagerInitialized();
                 ////将命令行参数写入日志文件
                 //wchar_t buff[256];
                 //swprintf_s(buff, L"程序已被Windows的RestartManager重启，重启参数：%s", m_cmdLine.c_str());
@@ -2915,6 +2930,7 @@ void CMusicPlayerDlg::OnTimer(UINT_PTR nIDEvent)
                     else
                         CPlayer::GetInstance().CreateWithPlaylist(CRecentList::Instance().GetSpecPlaylist(CRecentList::PT_DEFAULT).path);
                 }
+                EnsureDeviceManagerInitialized();
                 if (!files.empty())
                 {
                     std::unique_lock<std::mutex> lock(m_cmd_open_files_mutx);
@@ -3455,8 +3471,12 @@ void CMusicPlayerDlg::OnDestroy()
     m_hot_key.UnRegisterAllHotKey();
 
     //取消注册接收音频设备变化通知回调的IMMNotificationClient接口
-    devicesManager->ReleaseDeviceEnumerator();
-    delete devicesManager;
+    if (devicesManager != nullptr)
+    {
+        devicesManager->ReleaseDeviceEnumerator();
+        delete devicesManager;
+        devicesManager = nullptr;
+    }
 
     // 取消注册电源状态切换通知
     if (CWinVersionHelper::IsWindows8OrLater())
@@ -4281,7 +4301,8 @@ afx_msg LRESULT CMusicPlayerDlg::OnTaskbarcreated(WPARAM wParam, LPARAM lParam)
     TaskBarInit();
 
     //资源管理器重启后Cortana的句柄会发生改变，此时要重新获取Cortana的句柄
-    m_cortana_lyric.Init();
+    if (theApp.m_lyric_setting_data.cortana_info_enable)
+        m_cortana_lyric.Init();
 
     if (theApp.m_app_setting_data.show_notify_icon)
         m_notify_icon.AddNotifyIcon();      //重新添加通知区图标
@@ -4559,7 +4580,7 @@ void CMusicPlayerDlg::OnEditLyric()
     // TODO: 在此添加命令处理程序代码
     //ShellExecute(NULL, _T("open"), CPlayer::GetInstance().m_Lyrics.GetPathName().c_str(), NULL, NULL, SW_SHOWNORMAL);
     CCommon::DeleteModelessDialog(m_pLyricEdit);
-    if (!theApp.IsScintillaLoaded())
+    if (!theApp.EnsureScintillaLoaded())
     {
         const wstring& info = theApp.m_str_table.LoadText(L"MSG_SCI_NOT_LOADED_ERROR");
         MessageBox(info.c_str(), NULL, MB_ICONERROR | MB_OK);

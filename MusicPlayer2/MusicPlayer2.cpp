@@ -226,8 +226,12 @@ BOOL CMusicPlayerApp::InitInstance()
     // 获取互斥量后StrTable应尽早初始化以免某些LoadText后以静态变量保存字符串引用的地方加载到空字符串<error>
     m_str_table.Init(m_general_setting_data.language_);
 
-    LoadSongData();
-    LoadLastFMData();
+    m_song_data_load_thread = AfxBeginThread(LoadSongDataThreadFunc, nullptr, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+    if (m_song_data_load_thread != nullptr)
+    {
+        m_song_data_load_thread->m_bAutoDelete = FALSE;
+        m_song_data_load_thread->ResumeThread();
+    }
 
     // 获取默认线程语言
     CCommon::GetThreadLanguageList(m_def_lang_list);
@@ -299,7 +303,6 @@ BOOL CMusicPlayerApp::InitInstance()
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 
-    m_hScintillaModule = LoadLibrary(_T("lib\\SciLexer.dll"));
     m_accelerator_res.Init();
     m_chinese_pingyin_res.Init();
 
@@ -323,7 +326,8 @@ BOOL CMusicPlayerApp::InitInstance()
         TRACE(traceAppMsg, 0, L"警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
     }
 
-    SaveLastFMData();
+    if (m_media_lib_setting_data.enable_lastfm)
+        SaveLastFMData();
     SaveGlobalConfig();
 
     //如果媒体库正在更新，通知线程退出
@@ -331,6 +335,12 @@ BOOL CMusicPlayerApp::InitInstance()
     if (theApp.m_media_lib_updating)
         WaitForSingleObject(m_media_lib_update_thread->m_hThread, 1000);	//等待线程退出
 
+    if (m_song_data_load_thread != nullptr)
+    {
+        WaitForSingleObject(m_song_data_load_thread->m_hThread, INFINITE);
+        delete m_song_data_load_thread;
+        m_song_data_load_thread = nullptr;
+    }
     SaveSongData();
 
     // 删除上面创建的 shell 管理器。
@@ -666,6 +676,13 @@ bool CMusicPlayerApp::IsScintillaLoaded() const
     return m_hScintillaModule != NULL;
 }
 
+bool CMusicPlayerApp::EnsureScintillaLoaded()
+{
+    if (m_hScintillaModule == NULL)
+        m_hScintillaModule = LoadLibrary(_T("lib\\SciLexer.dll"));
+    return IsScintillaLoaded();
+}
+
 //void CMusicPlayerApp::StartClassifySongData()
 //{
 //    AfxBeginThread(ClassifySongDataThreadFunc, NULL);
@@ -674,6 +691,14 @@ bool CMusicPlayerApp::IsScintillaLoaded() const
 void CMusicPlayerApp::LoadSongData()
 {
     CSongDataManager::GetInstance().LoadSongData(m_song_data_path);
+}
+
+UINT CMusicPlayerApp::LoadSongDataThreadFunc(LPVOID lpParam)
+{
+    theApp.LoadSongData();
+    if (theApp.m_pMainWnd != nullptr && theApp.m_pMainWnd->GetSafeHwnd() != NULL)
+        theApp.UpdateUiMeidaLibItems();
+    return 0;
 }
 
 LRESULT CMusicPlayerApp::MultiMediaKeyHookProc(int nCode, WPARAM wParam, LPARAM lParam)
@@ -770,14 +795,18 @@ void CMusicPlayerApp::OnHelpFaq()
 }
 
 void CMusicPlayerApp::LoadLastFMData() {
-    m_lastfm.LoadData(m_lastfm_path);
+    if (m_media_lib_setting_data.enable_lastfm)
+        m_lastfm.LoadData(m_lastfm_path);
 }
 
 void CMusicPlayerApp::SaveLastFMData() {
-    m_lastfm.SaveData(m_lastfm_path);
+    if (m_media_lib_setting_data.enable_lastfm)
+        m_lastfm.SaveData(m_lastfm_path);
 }
 
 void CMusicPlayerApp::UpdateLastFMNowPlaying() {
+    if (!m_media_lib_setting_data.enable_lastfm)
+        return;
     AfxBeginThread(UpdateLastFMNowPlayingFunProc, (LPVOID)NULL);
 }
 
@@ -787,6 +816,8 @@ UINT CMusicPlayerApp::UpdateLastFMNowPlayingFunProc(LPVOID lpParam) {
 }
 
 void CMusicPlayerApp::UpdateLastFMFavourite(bool favourite) {
+    if (!m_media_lib_setting_data.enable_lastfm)
+        return;
     AfxBeginThread(UpdateLastFMFavouriteFunProc, (LPVOID)favourite);
 }
 
@@ -802,6 +833,8 @@ UINT CMusicPlayerApp::UpdateLastFMFavouriteFunProc(LPVOID lpParam) {
 }
 
 void CMusicPlayerApp::LastFMScrobble() {
+    if (!m_media_lib_setting_data.enable_lastfm)
+        return;
     AfxBeginThread(LastFMScrobbleFunProc, (LPVOID)NULL);
 }
 

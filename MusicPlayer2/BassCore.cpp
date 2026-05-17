@@ -135,36 +135,6 @@ void CBassCore::InitCore()
             m_bass_midi_lib.Init(plugin_dir + plugin_file);
             m_sfont_name = theApp.m_str_table.LoadText(L"UI_TXT_SF2_NAME_NONE");
             m_sfont.font = 0;
-            if (m_bass_midi_lib.IsSucceed())
-            {
-                wstring sf2_path = theApp.m_play_setting_data.sf2_path;
-                if (!CCommon::FileExist(sf2_path))		//如果设置的音色库路径不存在，则从.\Plugins\soundfont\目录下查找音色库文件
-                {
-                    vector<wstring> sf2s;
-                    CCommon::GetFiles(plugin_dir + L"soundfont\\*.sf2", sf2s);
-                    if (!sf2s.empty())
-                        sf2_path = plugin_dir + L"soundfont\\" + sf2s[0];
-                }
-                if (CCommon::FileExist(sf2_path))
-                {
-                    m_sfont.font = m_bass_midi_lib.BASS_MIDI_FontInit(sf2_path.c_str(), BASS_UNICODE);
-                    if (m_sfont.font == 0)
-                    {
-                        wstring info = theApp.m_str_table.LoadTextFormat(L"LOG_SF2_LOAD_FAILED", { sf2_path });
-                        theApp.WriteLog(info);
-                        m_sfont_name = theApp.m_str_table.LoadText(L"UI_TXT_SF2_NAME_FAILDE");
-                    }
-                    else
-                    {
-                        //获取音色库信息
-                        BASS_MIDI_FONTINFO sfount_info;
-                        m_bass_midi_lib.BASS_MIDI_FontGetInfo(m_sfont.font, &sfount_info);
-                        m_sfont_name = CCommon::StrToUnicode(sfount_info.name);
-                    }
-                    m_sfont.preset = -1;
-                    m_sfont.bank = 0;
-                }
-            }
         }
     }
 }
@@ -188,6 +158,42 @@ void CBassCore::UnInitCore()
 unsigned int CBassCore::GetHandle()
 {
     return m_musicStream;
+}
+
+void CBassCore::EnsureMidiSoundFontLoaded()
+{
+    if (m_midi_sound_font_checked || !m_bass_midi_lib.IsSucceed())
+        return;
+
+    m_midi_sound_font_checked = true;
+    wstring sf2_path = theApp.m_play_setting_data.sf2_path;
+    const wstring plugin_dir = theApp.m_local_dir + L"Plugins\\";
+    if (!CCommon::FileExist(sf2_path))		//如果设置的音色库路径不存在，则从.\Plugins\soundfont\目录下查找音色库文件
+    {
+        vector<wstring> sf2s;
+        CCommon::GetFiles(plugin_dir + L"soundfont\\*.sf2", sf2s);
+        if (!sf2s.empty())
+            sf2_path = plugin_dir + L"soundfont\\" + sf2s[0];
+    }
+    if (CCommon::FileExist(sf2_path))
+    {
+        m_sfont.font = m_bass_midi_lib.BASS_MIDI_FontInit(sf2_path.c_str(), BASS_UNICODE);
+        if (m_sfont.font == 0)
+        {
+            wstring info = theApp.m_str_table.LoadTextFormat(L"LOG_SF2_LOAD_FAILED", { sf2_path });
+            theApp.WriteLog(info);
+            m_sfont_name = theApp.m_str_table.LoadText(L"UI_TXT_SF2_NAME_FAILDE");
+        }
+        else
+        {
+            //获取音色库信息
+            BASS_MIDI_FONTINFO sfount_info;
+            m_bass_midi_lib.BASS_MIDI_FontGetInfo(m_sfont.font, &sfount_info);
+            m_sfont_name = CCommon::StrToUnicode(sfount_info.name);
+        }
+        m_sfont.preset = -1;
+        m_sfont.bank = 0;
+    }
 }
 
 std::wstring CBassCore::GetAudioType()
@@ -309,6 +315,8 @@ void CBassCore::Open(const wchar_t * file_path)
     BASS_ChannelGetAttribute(m_musicStream, BASS_ATTRIB_BITRATE, &bitrate);
     m_bitrate = static_cast<int>(bitrate + 0.5f);
     m_is_midi = (CAudioCommon::GetAudioTypeByBassChannel(m_channel_info.ctype) == AudioType::AU_MIDI);
+    if (m_is_midi)
+        EnsureMidiSoundFontLoaded();
     if (m_bass_midi_lib.IsSucceed() && m_is_midi && m_sfont.font != 0)
         m_bass_midi_lib.BASS_MIDI_StreamSetFonts(m_musicStream, &m_sfont, 1);
 

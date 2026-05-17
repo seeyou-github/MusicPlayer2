@@ -153,7 +153,7 @@ void CPlayer::Create()
     ListItem cur_list = CRecentList::Instance().GetCurrentList();
     // 如果文件夹模式且当前文件夹没有音频文件那么切换到默认播放列表
     // 清理无效（空）文件夹会在启动时更新媒体库进行（如果启用remove_file_not_exist_when_update）
-    if (cur_list.type == LT_FOLDER && (cur_list.path.empty() || !CAudioCommon::IsPathContainsAudioFile(cur_list.path, cur_list.contain_sub_folder)))
+    if (cur_list.type == LT_FOLDER && cur_list.path.empty())
     {
         cur_list = CRecentList::Instance().GetSpecPlaylist(CRecentList::PT_DEFAULT);
     }
